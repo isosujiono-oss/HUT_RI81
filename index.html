@@ -22,315 +22,333 @@
             <span class="bg-red-800/60 text-yellow-300 font-extrabold text-xs tracking-widest uppercase px-3 py-1 rounded-full shadow-inner">
                 PANITIA HUT-RI KECAMATAN BOLANO
             </span>
-            <h1 class="text-3xl md:text-4xl font-black mt-3 tracking-wide drop-shadow-sm">
-                📢 PAPAN INFORMASI PHBN DIGITAL
+            <h1 class="text-3xl md:text-4xl font-black tracking-tight mt-2 drop-shadow-sm">
+                📌 PAPAN INFORMASI & MONITORING DATA
             </h1>
-            <p class="text-sm text-red-100 font-medium mt-1.5 opacity-90 max-w-xl mx-auto">
-                Transparansi Anggaran Kas, Pencarian Nomor Peserta Lomba Resmi, & Dokumentasi Terkini Kegiatan Lapangan.
+            <p class="text-red-100 text-xs md:text-sm font-medium tracking-wide mt-1 opacity-90 max-w-xl mx-auto">
+                Transparansi Anggaran Kas Keuangan, Daftar Peserta Lomba, dan Galeri Dokumentasi Kegiatan PHBN secara Real-Time.
             </p>
         </div>
     </header>
 
-    <div id="print-card-area" class="hidden print-block"></div>
+    <main class="container mx-auto px-4 mt-6 max-w-6xl no-print">
+        <div class="flex border-b border-slate-200 bg-white p-1 rounded-2xl shadow-xs overflow-x-auto gap-1">
+            <button onclick="switchTab('keuangan')" id="tab-keuangan" class="flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 bg-red-600 text-white shadow-xs">
+                💰 Kas Keuangan
+            </button>
+            <button onclick="switchTab('lomba')" id="tab-lomba" class="flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100/60">
+                🏆 Pendaftar Lomba
+            </button>
+            <button onclick="switchTab('galeri')" id="tab-galeri" class="flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100/60">
+                🖼️ Galeri Kegiatan
+            </button>
+        </div>
 
-    <main class="container mx-auto px-4 mt-8 max-w-5xl no-print">
-        
-        <!-- CARD SUMMARY NOMINAL MUTASI KAS -->
-        <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
-                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Total Saldo Pemasukan</span>
-                <span id="total-masuk" class="text-2xl font-black text-emerald-600 block mt-1">Rp 0</span>
+        <section id="content-keuangan" class="tab-content mt-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pemasukan</p>
+                        <h3 id="total-masuk" class="text-xl md:text-2xl font-black text-emerald-600 mt-1">Rp0</h3>
+                    </div>
+                    <div class="bg-emerald-50 text-emerald-500 p-3 rounded-xl font-bold text-lg">💰</div>
+                </div>
+                <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-xs flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pengeluaran</p>
+                        <h3 id="total-keluar" class="text-xl md:text-2xl font-black text-rose-600 mt-1">Rp0</h3>
+                    </div>
+                    <div class="bg-rose-50 text-rose-500 p-3 rounded-xl font-bold text-lg">💸</div>
+                </div>
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between text-white">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Saldo Sisa Saat Ini</p>
+                        <h3 id="saldo-akhir" class="text-xl md:text-2xl font-black text-yellow-400 mt-1">Rp0</h3>
+                    </div>
+                    <div class="bg-white/10 text-white p-3 rounded-xl font-bold text-lg">⚖️</div>
+                </div>
             </div>
-            <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
-                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Total Alokasi Pengeluaran</span>
-                <span id="total-keluar" class="text-2xl font-black text-red-600 block mt-1">Rp 0</span>
-            </div>
-            <div class="bg-white border-red-200 bg-red-50/40 border p-5 rounded-2xl shadow-xs">
-                <span class="text-xs font-bold text-red-800/60 tracking-wider uppercase block">Sisa Saldo Kas Bersih</span>
-                <span id="saldo-akhir" class="text-2xl font-black text-slate-950 block mt-1">Rp 0</span>
+
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h2 class="font-extrabold text-slate-800 text-base flex items-center">
+                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-600 mr-2"></span> Jurnal Transaksi Keuangan
+                        </h2>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Memuat riwayat debit dan kredit kas panitia</p>
+                    </div>
+                    <button onclick="loadSheetData('Keuangan')" class="w-full sm:w-auto bg-white border border-slate-300 hover:bg-slate-50 active:bg-slate-100 font-bold text-xs py-2 px-3.5 rounded-xl transition shadow-inner cursor-pointer text-slate-700">
+                        🔄 Segarkan Data
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="bg-slate-50/60 border-b border-slate-200 text-slate-400 font-bold text-[11px] tracking-wider uppercase">
+                                <th class="p-3.5 text-center w-12">No</th>
+                                <th class="p-3.5 w-28">Tanggal</th>
+                                <th class="p-3.5 w-24 text-center">Jenis</th>
+                                <th class="p-3.5">Item Kegiatan & Sub Rincian Anggaran</th>
+                                <th class="p-3.5 text-right w-36">Jumlah Uang</th>
+                                <th class="p-3.5 text-center w-20">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keuangan-container" class="divide-y divide-slate-100">
+                            <tr>
+                                <td colspan="6" class="p-8 text-center text-slate-400 italic text-sm">Sedang memuat data transaksi...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-        <!-- TABS NAVIGASI MENU UTAMA -->
-        <nav class="flex border-b border-slate-200 mb-6 gap-2">
-            <button onclick="switchTab('keuangan')" id="tab-keuangan" class="px-5 py-2.5 font-bold text-sm rounded-t-xl border-b-2 border-red-600 text-red-600 cursor-pointer transition">💼 Kas Transparansi</button>
-            <button onclick="switchTab('lomba')" id="tab-lomba" class="px-5 py-2.5 font-bold text-sm rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 cursor-pointer transition">🏆 Cek Nomor Peserta</button>
-            <button onclick="switchTab('galeri')" id="tab-galeri" class="px-5 py-2.5 font-bold text-sm rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 cursor-pointer transition">🖼️ Galeri Media Visual</button>
-        </nav>
-
-        <!-- AREA PANEL KEUANGAN -->
-        <div id="panel-keuangan" class="tab-panel bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-black text-slate-900">📑 Jurnal Arus Kas Anggaran PHBN</h2>
-                <button onclick="fetchData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded-lg font-bold transition cursor-pointer">🔄 Segarkan Data</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-100 text-slate-400 text-xs font-bold uppercase">
-                            <th class="py-3 px-2">Tanggal</th>
-                            <th class="py-3 px-2">Jenis</th>
-                            <th class="py-3 px-2">Item Deskripsi Kegiatan</th>
-                            <th class="py-3 px-2">Sub Anggaran</th>
-                            <th class="py-3 px-2 text-right">Nominal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="keuangan-rows" class="text-slate-700 font-medium">
-                        <tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-xs">Sedang sinkronisasi cloud...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- AREA PANEL CEK NOMOR PESERTA LOMBA -->
-        <div id="panel-lomba" class="tab-panel bg-white border border-slate-200 rounded-2xl p-6 shadow-xs hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-black text-slate-900">🔍 Pencarian Kartu Peserta Lomba Resmi</h2>
-                <button onclick="fetchData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded-lg font-bold transition cursor-pointer">🔄 Segarkan Data</button>
-            </div>
-            <input type="text" id="lomba-search" oninput="filterLomba()" placeholder="Ketik nama grup, utusan dusun, atau cabang lomba..." class="w-full px-4 py-3 border border-slate-200 rounded-xl mb-4 text-sm focus:outline-none focus:border-red-500 bg-slate-50/50">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-100 text-slate-400 text-xs font-bold uppercase">
-                            <th class="py-3 px-2">No Urut</th>
-                            <th class="py-3 px-2">Cabang Lomba</th>
-                            <th class="py-3 px-2">Nama Peserta / Tim</th>
-                            <th class="py-3 px-2">Asal Kontingen</th>
-                            <th class="py-3 px-2 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lomba-rows" class="text-slate-700 font-medium">
-                        <tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-xs">Memuat daftar peserta...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- AREA PANEL GALERI MULTI-MEDIA INTERAKTIF -->
-        <div id="panel-galeri" class="tab-panel hidden">
-            <div class="flex justify-between items-center mb-5 bg-white border border-slate-200 p-4 rounded-xl">
-                <div>
-                    <h3 class="font-extrabold text-slate-900 text-sm">📺 Galeri Dokumentasi Lapangan PHBN</h3>
-                    <p class="text-xs text-slate-400">Media visual foto ImgBB/Drive dan video YouTube/TikTok/FB termuat langsung.</p>
+        <section id="content-lomba" class="tab-content mt-6 hidden">
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h2 class="font-extrabold text-slate-800 text-base flex items-center">
+                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-600 mr-2"></span> Daftar Peserta Perlombaan
+                        </h2>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Data registrasi nomor urut pendaftaran lomba resmi</p>
+                    </div>
+                    <button onclick="loadSheetData('Lomba')" class="w-full sm:w-auto bg-white border border-slate-300 hover:bg-slate-50 active:bg-slate-100 font-bold text-xs py-2 px-3.5 rounded-xl transition shadow-inner cursor-pointer text-slate-700">
+                        🔄 Segarkan Data
+                    </button>
                 </div>
-                <button onclick="fetchData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 px-4 rounded-xl font-bold transition cursor-pointer">🔄 Segarkan Galeri</button>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-50/60 border-b border-slate-200 text-slate-400 font-bold text-[11px] tracking-wider uppercase">
+                                <th class="p-3.5 text-center w-24">No Urut</th>
+                                <th class="p-3.5 w-52">Cabang Lomba</th>
+                                <th class="p-3.5">Nama Peserta / Tim</th>
+                                <th class="p-3.5 w-44">Asal Kontingen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lomba-container" class="divide-y divide-slate-100">
+                            <tr>
+                                <td colspan="4" class="p-8 text-center text-slate-400 italic text-sm">Sedang memuat data pendaftar...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="galeri-container">
-                <!-- Data Media Terintegrasi Otomatis -->
-            </div>
-        </div>
+        </section>
 
+        <section id="content-galeri" class="tab-content mt-6 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 bg-slate-100 p-4 rounded-2xl border border-slate-200/60 shadow-xs">
+                <div>
+                    <h2 class="font-extrabold text-slate-800 text-base flex items-center">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-600 mr-2"></span> Album Galeri & Dokumentasi
+                    </h2>
+                    <p class="text-xs text-slate-400 font-medium mt-0.5">Kumpulan dokumentasi foto/video kegiatan PHBN di lapangan</p>
+                </div>
+                <button onclick="loadSheetData('Galeri')" class="w-full sm:w-auto bg-white border border-slate-300 hover:bg-slate-50 active:bg-slate-100 font-bold text-xs py-2 px-3.5 rounded-xl transition shadow-inner cursor-pointer text-slate-700">
+                    🔄 Segarkan Data
+                </button>
+            </div>
+            <div id="galeri-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                <div class="col-span-full text-center text-slate-400 italic py-12 text-sm bg-white border border-slate-200 rounded-2xl shadow-xs">
+                    Sedang memuat album galeri...
+                </div>
+            </div>
+        </section>
     </main>
 
+    <div id="print-card-area" class="hidden p-6 bg-white font-mono text-xs max-w-sm mx-auto border-2 border-dashed border-slate-400 rounded-lg">
+        <div class="text-center font-bold text-sm uppercase mb-1 border-b border-slate-300 pb-2">
+            KWITANSI RESMI BUKTI KAS PHBN<br><span class="text-xs font-medium">KECAMATAN BOLANO</span>
+        </div>
+        <table class="w-full my-3 space-y-1">
+            <tr><td class="w-24 font-bold">No. Ref</td><td>: <span id="p-id">-</span></td></tr>
+            <tr><td class="font-bold">Tanggal</td><td>: <span id="p-tgl">-</span></td></tr>
+            <tr><td class="font-bold">Arus Kas</td><td>: <span id="p-jenis">-</span></td></tr>
+            <tr><td class="font-bold">Agenda/Item</td><td>: <span id="p-item">-</span></td></tr>
+            <tr><td class="font-bold">Sub Rincian</td><td>: <span id="p-sub">-</span></td></tr>
+        </table>
+        <div class="border-t border-b border-slate-400 py-2 my-2 text-center text-base font-black bg-slate-50">
+            TOTAL: <span id="p-jumlah">Rp0</span>
+        </div>
+        <div class="text-center text-[10px] text-slate-400 mt-4 leading-tight italic">
+            Dokumen ini dicetak otomatis dari sistem cloud transparansi PHBN Bolano sebagai bukti administrasi yang sah.
+        </div>
+    </div>
+
     <script>
-        // MASUKKAN URL WEB APP DEPLOYMENT GOOGLE APPS SCRIPT ANDA DI SINI
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzESxniUujVjaSc9bgxzEoiYOixe7fGDm5xG3qU5N0YJP_6uGHlDyp45QJhH_ls7fG0/exec";
-        
-        let localDataLomba = []; 
+        let cacheData = { Keuangan: [], Lomba: [], Galeri: [] };
 
-        function switchTab(target) {
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
-            document.getElementById(`panel-${target}`).classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(b => { b.classList.remove('border-red-600', 'text-red-600'); b.classList.add('border-transparent', 'text-slate-500'); });
-            const activeBtn = document.getElementById(`tab-${target}`);
-            activeBtn.classList.remove('border-transparent', 'text-slate-500');
-            activeBtn.classList.add('border-red-600', 'text-red-600');
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSheetData('Keuangan');
+            loadSheetData('Lomba');
+            loadSheetData('Galeri');
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+
+            const tabs = ['keuangan', 'lomba', 'galeri'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    btn.className = "flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 bg-red-600 text-white shadow-xs";
+                } else {
+                    btn.className = "flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100/60";
+                }
+            });
         }
 
-        function formatRupiah(angka) { return "Rp " + Number(angka).toLocaleString('id-ID'); }
-
-        function formatTgl(isoString) {
-            if(!isoString) return '-';
-            const d = new Date(isoString);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-        }
-
-        function fetchData() {
-            if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzESxniUujVjaSc9bgxzEoiYOixe7fGDm5xG3qU5N0YJP_6uGHlDyp45QJhH_ls7fG0/exec") return;
-            
-            fetch(`${SCRIPT_URL}?action=read&target=Keuangan`)
-                .then(res => res.json()).then(res => { if(res.status === "success") renderKeuangan(res.data); });
-
-            fetch(`${SCRIPT_URL}?action=read&target=Lomba`)
-                .then(res => res.json()).then(res => { if(res.status === "success") { localDataLomba = res.data; renderLomba(res.data); } });
-
-            fetch(`${SCRIPT_URL}?action=read&target=Galeri`)
-                .then(res => res.json()).then(res => { if(res.status === "success") renderGaleri(res.data); });
+        function loadSheetData(sheetName) {
+            fetch(`${SCRIPT_URL}?action=read&target=${sheetName}`)
+                .then(res => res.json())
+                .then(result => {
+                    if (result.status === "success") {
+                        cacheData[sheetName] = result.data;
+                        if (sheetName === 'Keuangan') renderKeuangan(result.data);
+                        if (sheetName === 'Lomba') renderLomba(result.data);
+                        if (sheetName === 'Galeri') renderGaleri(result.data);
+                    }
+                })
+                .catch(err => console.error("Koneksi gagal:", err));
         }
 
         function renderKeuangan(data) {
-            const tbody = document.getElementById('keuangan-rows');
-            tbody.innerHTML = '';
+            const container = document.getElementById('keuangan-container');
+            container.innerHTML = '';
+
             let tMasuk = 0, tKeluar = 0;
-            if(!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-sm">Belum ada transaksi.</td></tr>`;
+
+            if (data.length === 0) {
+                container.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400 italic text-sm">Belum ada data transaksi keuangan.</td></tr>';
                 return;
             }
-            data.forEach(item => {
-                let jenis = item.jenis_transaksi || item.jenis || '';
-                let nominal = Number(item.jumlah_uang_rupiah_ || item.jumlah || 0);
-                let tgl = item.tanggal || '';
-                let itemKeg = item.nama_item_kegiatan || item.item_kegiatan || '-';
-                let subRin = item.sub_rincian || '-';
 
-                if(jenis.toUpperCase() === "MASUK" || jenis.toLowerCase() === "pendapatan") tMasuk += nominal;
-                if(jenis.toUpperCase() === "KELUAR" || jenis.toLowerCase() === "pengeluaran") tKeluar += nominal;
+            data.forEach((item, idx) => {
+                const rawTgl = item.timestamp || item.tanggal || '';
+                const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : '-';
+                
+                const jenis = (item.jenis || '').trim().toLowerCase();
+                const badgeJenis = jenis === 'pemasukan' 
+                    ? '<span class="bg-emerald-50 text-emerald-600 font-extrabold text-[10px] tracking-wide uppercase px-2 py-0.5 rounded-md border border-emerald-200/50">Masuk</span>' 
+                    : '<span class="bg-rose-50 text-rose-600 font-extrabold text-[10px] tracking-wide uppercase px-2 py-0.5 rounded-md border border-rose-200/50">Keluar</span>';
 
-                tbody.innerHTML += `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                        <td class="py-3 px-2 text-xs text-slate-400 whitespace-nowrap">${formatTgl(tgl)}</td>
-                        <td class="py-3 px-2"><span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold ${(jenis.toUpperCase() === 'MASUK' || jenis.toLowerCase() === 'pendapatan') ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${jenis.toUpperCase()}</span></td>
-                        <td class="py-3 px-2 font-bold text-slate-900">${itemKeg}</td>
-                        <td class="py-3 px-2 text-xs text-slate-400">${subRin}</td>
-                        <td class="py-3 px-2 text-right font-bold ${(jenis.toUpperCase() === 'MASUK' || jenis.toLowerCase() === 'pendapatan') ? 'text-emerald-600' : 'text-red-500'}">${formatRupiah(nominal)}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('total-masuk').innerText = formatRupiah(tMasuk);
-            document.getElementById('total-keluar').innerText = formatRupiah(tKeluar);
-            document.getElementById('saldo-akhir').innerText = formatRupiah(tMasuk - tKeluar);
-        }
+                const nominal = Number(item.jumlah || 0);
+                if (jenis === 'pemasukan') tMasuk += nominal;
+                if (jenis === 'pengeluaran') tKeluar += nominal;
 
-        function renderLomba(data) {
-            const tbody = document.getElementById('lomba-rows');
-            tbody.innerHTML = '';
-            if(!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-sm">Belum ada peserta lomba terdaftar.</td></tr>`;
-                return;
-            }
-            data.forEach(item => {
-                let no = String(item.nomor_urut_pendaftaran || item.nomor || '0').padStart(3, '0');
-                let jenis = item.cabang_perlombaan || item.jenis || '-';
-                let nama = item['nama_lengkap_/_nama_tim'] || item.nama || '-';
-                let asal = item['asal_utusan_/_kontingen'] || item.asal || '-';
+                const itemKegiatan = item.item_kegiatan || item.agenda || '-';
+                const subRincian = item.sub_rincian || '-';
 
-                tbody.innerHTML += `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                        <td class="p-3 text-center font-bold text-red-600 bg-red-50/50 w-16">${no}</td>
-                        <td class="py-3 px-2 font-bold text-red-700 text-xs">${jenis}</td>
-                        <td class="py-3 px-2 font-extrabold text-slate-900">${nama}</td>
-                        <td class="py-3 px-2 text-xs font-semibold text-slate-500">${asal}</td>
-                        <td class="py-3 px-2 text-center">
-                            <button onclick="printSingleCard('${no}', '${jenis}', '${nama}', '${asal}')" class="bg-slate-900 hover:bg-black text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg tracking-wider cursor-pointer transition">🖨️ CETAK</button>
+                container.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition text-slate-700">
+                        <td class="p-3.5 text-center font-mono text-xs text-slate-400">${idx + 1}</td>
+                        <td class="p-3.5 text-xs font-semibold text-slate-500">${formatTgl}</td>
+                        <td class="p-3.5 text-center">${badgeJenis}</td>
+                        <td class="p-3.5">
+                            <div class="font-bold text-sm text-slate-800 tracking-tight leading-tight">${itemKegiatan}</div>
+                            <div class="text-xs text-slate-400 font-medium mt-0.5 italic">${subRincian}</div>
+                        </td>
+                        <td class="p-3.5 text-right font-mono font-bold text-sm ${jenis === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}">
+                            Rp${nominal.toLocaleString('id-ID')}
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="printNota(${idx})" class="bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200/60 p-1.5 rounded-lg text-xs font-bold transition shadow-xs cursor-pointer">
+                                🖨️
+                            </button>
                         </td>
                     </tr>
                 `;
             });
+
+            document.getElementById('total-masuk').innerText = `Rp${tMasuk.toLocaleString('id-ID')}`;
+            document.getElementById('total-keluar').innerText = `Rp${tKeluar.toLocaleString('id-ID')}`;
+            document.getElementById('saldo-akhir').innerText = `Rp${(tMasuk - tKeluar).toLocaleString('id-ID')}`;
         }
 
-        function filterLomba() {
-            const keyword = document.getElementById('lomba-search').value.toLowerCase();
-            const filtered = localDataLomba.filter(item => {
-                let jenis = (item.cabang_perlombaan || item.jenis || '').toLowerCase();
-                let nama = (item['nama_lengkap_/_nama_tim'] || item.nama || '').toLowerCase();
-                let asal = (item['asal_utusan_/_kontingen'] || item.asal || '').toLowerCase();
-                return jenis.includes(keyword) || nama.includes(keyword) || asal.includes(keyword);
-            });
-            renderLomba(filtered);
-        }
-
-        function printSingleCard(no, lomba, nama, asal) {
-            const printArea = document.getElementById('print-card-area');
-            printArea.innerHTML = `
-                <div style="width: 480px; margin: 40px auto; padding: 25px; border: 4px dashed #000; font-family: sans-serif; background: white; border-radius: 15px;">
-                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;"><h2 style="margin: 0; font-size: 18px; font-weight: 900;">KARTU PESERTA RESMI PHBN KEC. BOLANO</h2></div>
-                    <table style="width: 100%; font-size: 13px; font-weight: bold;">
-                        <tr><td style="padding: 6px 0; width: 110px;">NOMOR URUT</td><td style="font-size: 22px; font-weight: 900; color: #d32f2f;">: # ${no}</td></tr>
-                        <tr><td style="padding: 6px 0;">LOMBA</td><td>: ${lomba}</td></tr>
-                        <tr><td style="padding: 6px 0;">NAMA PESERTA</td><td>: ${nama}</td></tr>
-                        <tr><td style="padding: 6px 0;">KONTINGEN</td><td>: ${asal}</td></tr>
-                    </table>
-                </div>
-            `;
-            window.print();
-        }
-
-        function renderGaleri(dataGaleri) {
-            const container = document.getElementById('galeri-container');
+        function renderLomba(data) {
+            const container = document.getElementById('lomba-container');
             container.innerHTML = '';
-            if(!dataGaleri || dataGaleri.length === 0) {
-                container.innerHTML = `<p class="text-slate-400 italic text-sm col-span-3 text-center py-6">Belum ada dokumentasi.</p>`;
+
+            if (data.length === 0) {
+                container.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400 italic text-sm">Belum ada data pendaftar lomba.</td></tr>';
                 return;
             }
-            dataGaleri.forEach(item => {
-                let agenda = item.nama_agenda_kegiatan || item.nama || '-';
-                let ket = item.keterangan_tambahan || item.ket || '-';
-                let rawUrl = item['link_url_(google_drive_/_youtube)'] || item.link || item.link_url || '#';
-                let urlArray = rawUrl.split(/[\s,]+/).filter(url => url.trim() !== '');
 
-                let mediaBlocksHtml = ''; 
-                let tombolLinksHtml = ''; 
+            data.forEach(item => {
+                // INTEGRASI FINAL: Taktik fallback berlapis untuk menjamin pembacaan data tetap normal
+                const noUrutRaw = item.nomor || item.nomor_urut_pendaftaran || item.nomor_urut || '0'; 
+                const noUrut = String(noUrutRaw).padStart(3, '0');
+                
+                const cabangLomba = item.jenis || item.cabang_perlombaan || item.cabang_lomba || item.jenis_lomba || '-';
+                const namaPeserta = item.nama || item['nama_lengkap_/_nama_tim'] || item.nama_lengkap || '-';
+                const asalKontingen = item.asal || item['asal_utusan_/_kontingen'] || item.asal_kontingen || '-';
+
+                container.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition text-slate-700">
+                        <td class="p-3.5 text-center font-mono text-xs font-bold text-red-600">${noUrut}</td>
+                        <td class="p-3.5 font-bold text-sm tracking-tight text-slate-800">${cabangLomba}</td>
+                        <td class="p-3.5 text-sm font-medium">${namaPeserta}</td>
+                        <td class="p-3.5 text-sm text-slate-500 font-semibold">${asalKontingen}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderGaleri(data) {
+            const container = document.getElementById('galeri-container');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-slate-400 italic py-12 text-sm bg-white border border-slate-200 rounded-2xl shadow-xs">Belum ada album dokumentasi yang disematkan.</div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const agenda = item.nama_agenda_kegiatan || item.agenda || '-';
+                const ket = item.keterangan || '-';
+                
+                const urlRaw = item['tautan_dokumentasi_/_link_foto_atau_video'] || item.link || '';
+                const urlArray = urlRaw.split(',').map(url => url.trim()).filter(url => url !== '');
+
+                let mediaBlocksHtml = '';
+                let tombolLinksHtml = '';
 
                 urlArray.forEach((url, index) => {
-                    let labelTautan = `🔗 Tautan Eksternal ${urlArray.length > 1 ? (index + 1) : ''}`;
-                    
-                    // 1. PROSES RENDERING DIRECT LINK GAMBAR (ImgBB, Cloud, DLL)
-                    if (url.includes('ibb.co') || url.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+                    let isImage = false;
+                    let cleanUrl = url.split('?')[0].toLowerCase();
+                    if (cleanUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp)$/) || url.includes('drive.google.com/uc') || url.includes('lh3.googleusercontent.com')) {
+                        isImage = true;
+                    }
+
+                    if (isImage) {
                         mediaBlocksHtml += `
-                            <div class="relative w-full h-44 bg-slate-100 rounded-xl overflow-hidden mb-2 border border-slate-100 shadow-xs">
-                                <img src="${url}" class="w-full h-full object-cover" alt="Visual Dokumentasi" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Gambar+ImgBB';">
+                            <div class="w-full h-36 bg-slate-100 rounded-xl overflow-hidden mb-2 relative group border border-slate-200/50">
+                                <img src="${url}" alt="${agenda}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.parentNode.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-slate-400 italic text-[11px]\'>🖼️ Gagal memuat pratinjau foto</div>'">
                             </div>
                         `;
-                        labelTautan = `🖼️ Lihat Foto Asli ${urlArray.length > 1 ? (index + 1) : ''}`;
-                    }
-                    
-                    // 2. PROSES RENDERING FOTO GOOGLE DRIVE
-                    else if (url.includes('drive.google.com')) {
+                    } else if (url.includes('drive.google.com/file') || url.includes('drive.google.com/open')) {
                         let fileId = '';
-                        if (url.includes('/d/')) { fileId = url.split('/d/')[1].split('/')[0]; } 
-                        else if (url.includes('id=')) { fileId = url.split('id=')[1].split('&')[0]; }
+                        if (url.includes('/d/')) fileId = url.split('/d/')[1].split('/')[0];
+                        else if (url.includes('id=')) fileId = url.split('id=')[1].split('&')[0];
                         
                         if (fileId) {
-                            let directImgUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+                            let thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
                             mediaBlocksHtml += `
-                                <div class="relative w-full h-44 bg-slate-100 rounded-xl overflow-hidden mb-2 border border-slate-100 shadow-xs">
-                                    <img src="${directImgUrl}" class="w-full h-full object-cover" alt="Drive Visual" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 text-[11px] p-2 text-center\'>🔒 Akses Drive Terkunci<br/><span class=\'text-[9px]\'>Setel file ke Publik di Drive</span></div>';">
+                                <div class="w-full h-36 bg-slate-100 rounded-xl overflow-hidden mb-2 relative group border border-slate-200/50">
+                                    <img src="${thumbUrl}" alt="${agenda}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.parentNode.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-[11px] font-medium text-slate-500 bg-red-50/50\'>📁 Dokumen/Video Cloud Google Drive</div>'">
                                 </div>
                             `;
                         }
-                        labelTautan = `🖼️ Buka Google Drive ${urlArray.length > 1 ? (index + 1) : ''}`;
-                    }
-                    
-                    // 3. PROSES RENDERING EMBED IFRAME YOUTUBE
-                    else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                        let videoId = '';
-                        if (url.includes('v=')) { videoId = url.split('v=')[1].split('&')[0]; } 
-                        else if (url.includes('youtu.be/')) { videoId = url.split('youtu.be/')[1].split('?')[0]; }
-                        
-                        if (videoId) {
-                            mediaBlocksHtml += `
-                                <div class="w-full h-44 rounded-xl overflow-hidden mb-2 bg-black shadow-xs">
-                                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-                                </div>
-                            `;
-                        }
-                        labelTautan = `📺 Tonton di YouTube ${urlArray.length > 1 ? (index + 1) : ''}`;
                     }
 
-                    // 4. PROSES RENDERING EMBED TIKTOK
-                    else if (url.includes('tiktok.com')) {
-                        let tiktokId = '';
-                        if (url.includes('/video/')) { tiktokId = url.split('/video/')[1].split('?')[0]; }
-                        if (tiktokId) {
-                            mediaBlocksHtml += `
-                                <div class="w-full h-44 rounded-xl overflow-hidden mb-2 bg-black shadow-xs">
-                                    <iframe class="w-full h-full" src="https://www.tiktok.com/embed/v2/${tiktokId}" frameborder="0" allowfullscreen></iframe>
-                                </div>
-                            `;
-                        }
-                        labelTautan = `🎵 Lihat di TikTok ${urlArray.length > 1 ? (index + 1) : ''}`;
-                    }
-
-                    // 5. PROSES RENDERING EMBED FACEBOOK
-                    else if (url.includes('facebook.com')) {
-                        let encodedFbUrl = encodeURIComponent(url);
-                        mediaBlocksHtml += `
-                            <div class="w-full h-44 rounded-xl overflow-hidden mb-2 bg-slate-100 shadow-xs">
-                                <iframe src="https://www.facebook.com/plugins/post.php?href=${encodedFbUrl}&show_text=false&width=500" class="w-full h-full" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
-                            </div>
-                        `;
+                    let labelTautan = `📂 Buka Tautan ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    if (url.includes('drive.google.com')) {
+                        labelTautan = `🔺 Google Drive ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        labelTautan = `🎬 Buka di YouTube ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    } else if (url.includes('facebook.com')) {
                         labelTautan = `🔵 Buka di Facebook ${urlArray.length > 1 ? (index + 1) : ''}`;
                     }
 
@@ -354,7 +372,24 @@
             });
         }
 
-        window.onload = function() { fetchData(); };
+        function printNota(idx) {
+            const item = cacheData.Keuangan[idx];
+            if (!item) return;
+
+            const rawTgl = item.timestamp || item.tanggal || '';
+            const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '-';
+
+            document.getElementById('p-id').innerText = `REF/PHBN-${idx + 1}`;
+            document.getElementById('p-tgl').innerText = formatTgl;
+            document.getElementById('p-jenis').innerText = (item.jenis || '').toUpperCase();
+            document.getElementById('p-item').innerText = item.item_kegiatan || item.agenda || '-';
+            document.getElementById('p-sub').innerText = item.sub_rincian || '-';
+            
+            const nominal = Number(item.jumlah || 0);
+            document.getElementById('p-jumlah').innerText = `Rp${nominal.toLocaleString('id-ID')}`;
+
+            window.print();
+        }
     </script>
 </body>
 </html>
