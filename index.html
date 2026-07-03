@@ -138,7 +138,7 @@
         </section>
 
         <section id="content-galeri" class="tab-content mt-6 hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 bg-slate-100 p-4 rounded-2xl border border-slate-200/60 shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 bg-slate-100 p-4 rounded-2xl border border-slate-200/60 shadow-xs">
                 <div>
                     <h2 class="font-extrabold text-slate-800 text-base flex items-center">
                         <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-600 mr-2"></span> Album Galeri & Dokumentasi
@@ -162,6 +162,7 @@
     </div>
 
     <script>
+        // MENGGUNAKAN URL APPS SCRIPT UPDATE BARU ANDA
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9YoHzHrdyE8u6KZSNraxIYRyP_LC-_cFN0JYxgfAMgsD2X5gEvuLUPpfEr2c4S7L_/exec";
         let cacheData = { Keuangan: [], Lomba: [], Galeri: [] };
 
@@ -242,7 +243,6 @@
                 const rawTgl = item.timestamp || item.tanggal || '';
                 const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : '-';
                 
-                // MULTI-FALLBACK JENIS TRANSAKSI AGAR TABEL TIDAK CRASH JIKA HEADER BERUBAH
                 const jenisRaw = item.jenis || item.arus_kas || item.kategori || item.tipe || '';
                 const jenis = jenisRaw.toString().trim().toLowerCase();
                 
@@ -401,7 +401,7 @@
             const rawTgl = item.timestamp || item.tanggal || '';
             const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '-';
             const nominal = Number(item.jumlah || 0);
-        
+
             const printBox = document.getElementById('print-content-box');
             printBox.innerHTML = `
                 <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2 leading-tight">
@@ -421,7 +421,6 @@
                     <tr><td class="font-bold text-slate-500">Agenda/Item</td><td>: <span class="text-slate-800 font-medium">${item.item_kegiatan || item.agenda || '-'}</span></td></tr>
                     <tr><td class="font-bold text-slate-500">Sub Rincian</td><td>: <span class="text-slate-800 font-medium">${item.sub_rincian || '-'}</span></td></tr>
                 </table>
-                
                 <div class="border-t border-b border-slate-400 py-2 my-2 text-center text-base font-black bg-slate-50 font-mono">
                     NOMINAL: Rp${nominal.toLocaleString('id-ID')}
                 </div>
@@ -440,14 +439,15 @@
                         <p class="font-bold text-slate-800 border-b border-slate-400 inline-block px-4">...................................</p>
                     </div>
                 </div>
-        
+
                 <div class="text-center text-[9px] text-slate-400 mt-6 leading-tight italic border-t border-slate-200 pt-2">
                     Dokumen sinkronisasi otomatis dari sistem cloud transparansi PHBN Kecamatan Bolano.
                 </div>
             `;
-        
+
             window.print();
         }
+
         function printKartuPeserta(idx) {
             const item = cacheData.Lomba[idx];
             if (!item) return;
@@ -460,9 +460,10 @@
 
             const printBox = document.getElementById('print-content-box');
             printBox.innerHTML = `
-                <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2">
-                    HUT KEMERDEKAAN RI PANITIA PERINGATAN HARI BESAR NASIONAL<br>
-                    <span class="text-[10px] font-bold text-red-600 tracking-wide">KECAMATAN BOLANO</span>
+                <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2 leading-tight">
+                    <span class="text-sm font-black tracking-wide block">HARI ULANG TAHUN KEMERDEKAAN RI 81</span>
+                    PANITIA HARI BESAR NASIONAL<br>
+                    <span class="text-[10px] tracking-wider block mt-0.5">KECAMATAN BOLANO</span>
                 </div>
                 <div class="text-center my-3 bg-red-50 py-2 rounded-md border border-red-200">
                     <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nomor Urut Pendaftaran</div>
