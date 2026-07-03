@@ -162,7 +162,7 @@
     </div>
 
     <script>
-        // MENGGUNAKAN URL APPS SCRIPT UPDATE BARU ANDA
+        // MENGGUNAKAN URL APPS SCRIPT SINKRONISASI UPDATE TERBARU ANDA
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9YoHzHrdyE8u6KZSNraxIYRyP_LC-_cFN0JYxgfAMgsD2X5gEvuLUPpfEr2c4S7L_/exec";
         let cacheData = { Keuangan: [], Lomba: [], Galeri: [] };
 
@@ -171,7 +171,7 @@
             loadSheetData('Lomba');
             loadSheetData('Galeri');
 
-            // PEMICU REFRESH ANTI-LAG & CACHE BYPASS MODEREN
+            // PEMICU REFRESH ANTI-LAG & CACHE BYPASS MODERN
             document.querySelectorAll('[data-refresh]').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const target = this.getAttribute('data-refresh');
@@ -405,7 +405,7 @@
             const printBox = document.getElementById('print-content-box');
             printBox.innerHTML = `
                 <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2 leading-tight">
-                    <span class="text-sm font-black tracking-wide block">HARI ULANG TAHUN KEMERDEKAAN RI 81</span>
+                    <span class="text-sm font-black tracking-wide block">HARI ULANG TAHUN KEMERDEKAAN REPUBLIK INDONESIA</span>
                     PANITIA HARI BESAR NASIONAL<br>
                     <span class="text-[10px] tracking-wider block mt-0.5">KECAMATAN BOLANO</span>
                 </div>
@@ -461,7 +461,7 @@
             const printBox = document.getElementById('print-content-box');
             printBox.innerHTML = `
                 <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2 leading-tight">
-                    <span class="text-sm font-black tracking-wide block">HARI ULANG TAHUN KEMERDEKAAN RI 81</span>
+                    <span class="text-sm font-black tracking-wide block">HARI ULANG TAHUN KEMERDEKAAN REPUBLIK INDONESIA</span>
                     PANITIA HARI BESAR NASIONAL<br>
                     <span class="text-[10px] tracking-wider block mt-0.5">KECAMATAN BOLANO</span>
                 </div>
