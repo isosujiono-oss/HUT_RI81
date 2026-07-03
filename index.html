@@ -11,7 +11,6 @@
             .no-print { display: none !important; }
             .print-block { display: block !important; }
             
-            /* Aturan cetak kartu nomor peserta resmi */
             body > :not(#print-card-area) {
                 display: none !important;
             }
@@ -28,249 +27,226 @@
 
     <header class="bg-gradient-to-r from-red-700 to-red-600 text-white shadow-md no-print">
         <div class="container mx-auto px-4 py-8 text-center relative">
-            <span class="bg-red-800/60 text-yellow-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Papan Informasi Publik</span>
-            <h1 class="text-3xl md:text-4xl font-extrabold tracking-wide mt-2">TRANSPARANSI DATA PHBN HUT RI</h1>
-            <p class="text-xl font-medium mt-1 text-red-100">Kecamatan Bolano</p>
+            <span class="bg-red-800/60 text-yellow-300 font-extrabold text-xs tracking-widest uppercase px-3 py-1 rounded-full shadow-inner">
+                PANITIA HUT-RI KECAMATAN BOLANO
+            </span>
+            <h1 class="text-3xl md:text-4xl font-black mt-3 tracking-wide drop-shadow-sm">
+                📢 PAPAN INFORMASI PHBN DIGITAL
+            </h1>
+            <p class="text-sm text-red-100 font-medium mt-1.5 opacity-90 max-w-xl mx-auto">
+                Transparansi Anggaran Kas, Pencarian Nomor Peserta Lomba Resmi, & Dokumentasi Terkini Kegiatan Lapangan.
+            </p>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 mt-8 max-w-6xl no-print">
+    <div id="print-card-area" class="hidden print-block"></div>
+
+    <main class="container mx-auto px-4 mt-8 max-w-5xl no-print">
         
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pemasukan (Kas)</span>
-                <h3 id="total-masuk" class="text-2xl font-black text-emerald-600 mt-1">Rp 0</h3>
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
+                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Total Saldo Pemasukan</span>
+                <span id="total-masuk" class="text-2xl font-black text-emerald-600 block mt-1">Rp 0</span>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pengeluaran (Kas)</span>
-                <h3 id="total-keluar" class="text-2xl font-black text-rose-600 mt-1">Rp 0</h3>
+            <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
+                <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Total Alokasi Pengeluaran</span>
+                <span id="total-keluar" class="text-2xl font-black text-red-600 block mt-1">Rp 0</span>
             </div>
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl shadow-md text-white">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Saldo Bersih Saat Ini</span>
-                <h3 id="saldo-akhir" class="text-2xl font-black text-yellow-400 mt-1">Rp 0</h3>
-            </div>
-        </section>
-
-        <section class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden mb-10">
-            <div class="bg-slate-900 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <div>
-                    <h3 class="font-black text-white text-lg tracking-wide">🏆 DAFTAR PESERTA LOMBA</h3>
-                    <p class="text-xs text-slate-400">Gunakan scroll pada tabel di bawah jika data peserta sangat banyak</p>
-                </div>
-            </div>
-            
-            <div class="overflow-x-auto max-h-120 overflow-y-auto">
-                <table class="w-full text-left border-collapse min-w-[600px]">
-                    <thead class="sticky top-0 z-10 bg-slate-100 shadow-xs">
-                        <tr class="text-slate-600 text-xs font-bold uppercase border-b border-slate-200">
-                            <th class="p-3 text-center w-20 bg-slate-100">No Urut</th>
-                            <th class="p-3 bg-slate-100">Cabang Lomba</th>
-                            <th class="p-3 bg-slate-100">Nama Lengkap Peserta / Tim</th>
-                            <th class="p-3 bg-slate-100">Asal / Instansi</th>
-                            <th class="p-3 text-center w-32 no-print bg-slate-100">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabel-lomba-body" class="text-sm divider-y divider-slate-100">
-                        <tr>
-                            <td colspan="5" class="p-6 text-center text-slate-400 italic">Menyinkronkan data dari server cloud...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="bg-white border-red-200 bg-red-50/40 border p-5 rounded-2xl shadow-xs">
+                <span class="text-xs font-bold text-red-800/60 tracking-wider uppercase block">Sisa Saldo Kas Bersih</span>
+                <span id="total-bersih" class="text-2xl font-black text-slate-950 block mt-1">Rp 0</span>
             </div>
         </section>
 
-        <section class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden mb-10">
-            <div class="bg-slate-900 px-6 py-4">
-                <h3 class="font-black text-white text-lg tracking-wide">📊 JURNAL MUTASI KAS TRANSPARAN</h3>
-                <p class="text-xs text-slate-400">Rincian cashflow riil yang diinput oleh bendahara panitia</p>
+        <nav class="flex border-b border-slate-200 mb-6 gap-2">
+            <button onclick="switchTab('keuangan')" id="tab-keuangan" class="px-5 py-2.5 font-bold text-sm rounded-t-xl border-b-2 border-red-600 text-red-600 cursor-pointer transition">
+                💼 Kas Transparansi
+            </button>
+            <button onclick="switchTab('lomba')" id="tab-lomba" class="px-5 py-2.5 font-bold text-sm rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 cursor-pointer transition">
+                🏆 Cek Nomor Peserta
+            </button>
+            <button onclick="switchTab('galeri')" id="tab-galeri" class="px-5 py-2.5 font-bold text-sm rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 cursor-pointer transition">
+                🖼️ Galeri Kegiatan
+            </button>
+        </nav>
+
+        <div id="panel-keuangan" class="tab-panel bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-black text-slate-900">📑 Jurnal Arus Kas Anggaran PHBN</h2>
+                <button onclick="fetchData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded-lg font-bold transition cursor-pointer">🔄 Segarkan Data</button>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left text-sm border-collapse">
                     <thead>
-                        <tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase border-b border-slate-200">
-                            <th class="p-3 w-32">Tanggal</th>
-                            <th class="p-3 w-28 text-center">Jenis</th>
-                            <th class="p-3">Item Anggaran / Kegiatan</th>
-                            <th class="p-3">Sub Rincian</th>
-                            <th class="p-3 text-right w-40">Nominal</th>
+                        <tr class="border-b border-slate-100 text-slate-400 text-xs font-bold uppercase">
+                            <th class="py-3 px-2">Tanggal</th>
+                            <th class="py-3 px-2">Jenis</th>
+                            <th class="py-3 px-2">Item Deskripsi Kegiatan</th>
+                            <th class="py-3 px-2">Sub Anggaran</th>
+                            <th class="py-3 px-2 text-right">Nominal</th>
                         </tr>
                     </thead>
-                    <tbody id="tabel-keuangan-body" class="text-sm divider-y divider-slate-100">
-                        <tr>
-                            <td colspan="5" class="p-6 text-center text-slate-400 italic">Menyinkronkan log keuangan...</td>
-                        </tr>
+                    <tbody id="keuangan-rows" class="text-slate-700 font-medium">
+                        <tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-xs">Sedang sinkronisasi cloud...</td></tr>
                     </tbody>
                 </table>
             </div>
-        </section>
+        </div>
 
-        <section class="mb-6">
-            <div class="mb-4">
-                <h3 class="font-black text-slate-900 text-lg tracking-wide">🖼️ DOKUMENTASI & GALERI KEGIATAN</h3>
-                <p class="text-xs text-slate-500">Kumpulan berkas foto, video, atau folder Drive resmi kepanitiaan</p>
+        <div id="panel-lomba" class="tab-panel bg-white border border-slate-200 rounded-2xl p-6 shadow-xs hidden">
+            <h2 class="text-lg font-black text-slate-900 mb-2">🔍 Pencarian Kartu Peserta Lomba Resmi</h2>
+            <p class="text-xs text-slate-500 mb-4">Ketik nama grup, nama perorangan, cabang lomba, atau asal desa/dusun untuk memfilter data peserta.</p>
+            
+            <input type="text" id="lomba-search" oninput="filterLomba()" placeholder="Ketik kata kunci pencarian..." class="w-full px-4 py-3 border border-slate-200 rounded-xl mb-4 text-sm focus:outline-none focus:border-red-500 bg-slate-50/50">
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-slate-400 text-xs font-bold uppercase">
+                            <th class="py-3 px-2">No. Urut</th>
+                            <th class="py-3 px-2">Cabang Lomba</th>
+                            <th class="py-3 px-2">Nama Peserta / Tim</th>
+                            <th class="py-3 px-2">Asal Kontingen</th>
+                            <th class="py-3 px-2 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lomba-rows" class="text-slate-700 font-medium">
+                        <tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-xs">Memuat daftar peserta...</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <div id="galeri-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        </div>
+
+        <div id="panel-galeri" class="tab-panel hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="galeri-container">
                 </div>
-        </section>
+        </div>
 
     </main>
 
-    <div id="print-card-area" class="hidden print-block"></div>
-
     <script>
-        // URL GOOGLE WEB APP SCRIPT RESMI SUDAH TERPASANG DI BAWAH INI
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzab3wDzju44r1z_wgqyG3HxsNew04ygG7d4IeIlsl59O3cQRtwJoU350_lKmLZ_8S6/exec";
+        // GANTI INI DENGAN URL WEB APP DEPLOYMENT GOOGLE APPS SCRIPT ANDA
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzESxniUujVjaSc9bgxzEoiYOixe7fGDm5xG3qU5N0YJP_6uGHlDyp45QJhH_ls7fG0/exec";
+        
+        let localDataLomba = []; 
 
-        let dataKeuangan = [];
-        let dataLomba = [];
-        let dataGaleri = [];
+        function switchTab(target) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`panel-${target}`).classList.remove('hidden');
 
-        function loadAllData() {
-            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") {
-                console.warn("SCRIPT_URL belum diatur.");
-                return;
-            }
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.remove('border-red-600', 'text-red-600');
+                b.classList.add('border-transparent', 'text-slate-500');
+            });
+            const activeBtn = document.getElementById(`tab-${target}`);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('border-red-600', 'text-red-600');
+        }
 
-            // Load Keuangan
+        function formatRupiah(angka) {
+            return "Rp " + Number(angka).toLocaleString('id-ID');
+        }
+
+        function formatTgl(isoString) {
+            if(!isoString) return '-';
+            const d = new Date(isoString);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function fetchData() {
+            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return;
+            
+            // 1. Ambil Data Keuangan
             fetch(`${SCRIPT_URL}?action=read&target=Keuangan`)
                 .then(res => res.json())
                 .then(res => {
-                    if(res.status === "success") {
-                        dataKeuangan = res.data;
-                        renderKeuangan();
-                    }
-                }).catch(err => console.error(err));
+                    if(res.status === "success") renderKeuangan(res.data);
+                });
 
-            // Load Lomba
+            // 2. Ambil Data Lomba
             fetch(`${SCRIPT_URL}?action=read&target=Lomba`)
                 .then(res => res.json())
                 .then(res => {
                     if(res.status === "success") {
-                        dataLomba = res.data;
-                        renderLomba();
+                        localDataLomba = res.data;
+                        renderLomba(res.data);
                     }
-                }).catch(err => console.error(err));
+                });
 
-            // Load Galeri
+            // 3. Ambil Data Galeri
             fetch(`${SCRIPT_URL}?action=read&target=Galeri`)
                 .then(res => res.json())
                 .then(res => {
-                    if(res.status === "success") {
-                        dataGaleri = res.data;
-                        renderGaleri();
-                    }
-                }).catch(err => console.error(err));
+                    if(res.status === "success") renderGaleri(res.data);
+                });
         }
 
-        function renderKeuangan() {
-            const tbody = document.getElementById('tabel-keuangan-body');
+        function renderKeuangan(data) {
+            const tbody = document.getElementById('keuangan-rows');
             tbody.innerHTML = '';
             
-            let totalMasuk = 0;
-            let totalKeluar = 0;
+            let tMasuk = 0, tKeluar = 0;
 
-            if(!dataKeuangan || dataKeuangan.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada data keuangan.</td></tr>`;
+            if(!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-sm">Belum ada rekaman data transaksi kas.</td></tr>`;
                 return;
             }
 
-            dataKeuangan.forEach(item => {
-                let jenis = (item.jenis || '').toLowerCase().trim();
-                let jumlah = Number(item.jumlah || 0);
-                let itemKegiatan = item.item_kegiatan || item.item || '-';
-                let subRincian = item.sub_rincian || '-';
-                
-                let tgl = '-';
-                if(item.tanggal) {
-                    const dateObj = new Date(item.tanggal);
-                    if(!isNaN(dateObj)) {
-                        tgl = dateObj.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
-                    }
-                }
+            data.forEach(item => {
+                let jenis = item.jenis_transaksi || item.jenis || '';
+                let nominal = Number(item.jumlah_uang_rupiah_ || item.jumlah || 0);
+                let tgl = item.tanggal || '';
+                let itemKeg = item.nama_item_kegiatan || item.item_kegiatan || '-';
+                let subRin = item.sub_rincian || '-';
 
-                let badge = "";
-                let classNominal = "";
-                let formatJumlah = "";
-
-                if(jenis === 'masuk' || jenis === 'pemasukan') {
-                    totalMasuk += jumlah;
-                    badge = `<span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-md">MASUK</span>`;
-                    classNominal = "text-emerald-600 font-bold text-right";
-                    formatJumlah = `+ Rp ${jumlah.toLocaleString('id-ID')}`;
-                } else {
-                    totalKeluar += jumlah;
-                    badge = `<span class="bg-rose-100 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-md">KELUAR</span>`;
-                    classNominal = "text-rose-600 font-bold text-right";
-                    formatJumlah = `- Rp ${jumlah.toLocaleString('id-ID')}`;
-                }
+                if(jenis.toUpperCase() === "MASUK") tMasuk += nominal;
+                if(jenis.toUpperCase() === "KELUAR") tKeluar += nominal;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 text-slate-500">${tgl}</td>
-                        <td class="p-3 text-center">${badge}</td>
-                        <td class="p-3 font-semibold text-slate-800">${itemKegiatan}</td>
-                        <td class="p-3 text-slate-600">${subRincian}</td>
-                        <td class="p-3 ${classNominal}">${formatJumlah}</td>
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                        <td class="py-3 px-2 text-xs text-slate-400 whitespace-nowrap">${formatTgl(tgl)}</td>
+                        <td class="py-3 px-2">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wider ${jenis.toUpperCase() === 'MASUK' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                                ${jenis.toUpperCase()}
+                            </span>
+                        </td>
+                        <td class="py-3 px-2 font-bold text-slate-900">${itemKeg}</td>
+                        <td class="py-3 px-2 text-xs text-slate-400">${subRin}</td>
+                        <td class="py-3 px-2 text-right font-bold ${jenis.toUpperCase() === 'MASUK' ? 'text-emerald-600' : 'text-red-500'}">${formatRupiah(nominal)}</td>
                     </tr>
                 `;
             });
 
-            document.getElementById('total-masuk').innerText = `Rp ${totalMasuk.toLocaleString('id-ID')}`;
-            document.getElementById('total-keluar').innerText = `Rp ${totalKeluar.toLocaleString('id-ID')}`;
-            document.getElementById('saldo-akhir').innerText = `Rp ${(totalMasuk - totalKeluar).toLocaleString('id-ID')}`;
+            document.getElementById('total-masuk').innerText = formatRupiah(tMasuk);
+            document.getElementById('total-keluar').innerText = formatRupiah(tKeluar);
+            document.getElementById('total-bersih').innerText = formatRupiah(tMasuk - tKeluar);
         }
 
-        function renderLomba() {
-            const tbody = document.getElementById('tabel-lomba-body');
+        function renderLomba(data) {
+            const tbody = document.getElementById('lomba-rows');
             tbody.innerHTML = '';
-            
-            if(!dataLomba || dataLomba.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada peserta terdaftar.</td></tr>`;
+
+            if(!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-sm">Belum ada peserta yang terdaftar.</td></tr>`;
                 return;
             }
 
-            // 1. URUTKAN DATA (Abaikan Huruf Besar/Kecil & Spasi Ganda)
-            const dataTersortir = [...dataLomba].sort((a, b) => {
-                let lombaA = (a.jenis_lomba || a.jenis || '').toLowerCase().replace(/\s+/g, ' ').trim();
-                let lombaB = (b.jenis_lomba || b.jenis || '').toLowerCase().replace(/\s+/g, ' ').trim();
-                
-                if (lombaA < lombaB) return -1;
-                if (lombaA > lombaB) return 1;
-                
-                let noA = Number(a.nomor_urut || a.nomor || 0);
-                let noB = Number(b.nomor_urut || b.nomor || 0);
-                return noA - noB;
-            });
-
-            // 2. COUNTER RESET PER GRUP KATEGORI YANG DI-NORMALISASI
-            const counterPerLomba = {};
-
-            // 3. GENERATE BARIS TABEL
-            dataTersortir.forEach((item) => {
-                let jenis = item.jenis_lomba || item.jenis || '-';
-                let nama = item.nama_peserta || item.nama || '-';
-                let asal = item.asal || '-';
-                
-                // Normalisasi string huruf kecil & hapus spasi berlebih
-                let keyGrup = jenis.toLowerCase().replace(/\s+/g, ' ').trim();
-                
-                if (!counterPerLomba[keyGrup]) {
-                    counterPerLomba[keyGrup] = 0;
-                }
-                counterPerLomba[keyGrup]++; 
-                
-                let nomorTampil = String(counterPerLomba[keyGrup]).padStart(3, '0');
+            data.forEach(item => {
+                let no = item.nomor_urut_pendaftaran || item.nomor || '-';
+                let jenis = item.cabang_perlombaan || item.jenis || '-';
+                let nama = item.nama_lengkap_/_nama_tim || item.nama || '-';
+                let asal = item.asal_utusan_/_kontingen || item.asal || '-';
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 text-center font-bold text-red-600 bg-red-50/50">${nomorTampil}</td>
-                        <td class="p-3 font-semibold text-slate-800">${jenis}</td>
-                        <td class="p-3 font-bold text-slate-900">${nama}</td>
-                        <td class="p-3 text-slate-500">${asal}</td>
-                        <td class="p-3 text-center no-print">
-                            <button onclick="cetakNomorPeserta('${nomorTampil}', '${jenis}', '${nama}', '${asal}')" 
-                                    class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition shadow-xs cursor-pointer flex items-center gap-1 mx-auto">
-                                🖨️ Cetak
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                        <td class="py-3 px-2 font-black text-slate-400 text-center w-12">${no}</td>
+                        <td class="py-3 px-2 font-bold text-red-700 text-xs">${jenis}</td>
+                        <td class="py-3 px-2 font-extrabold text-slate-900">${nama}</td>
+                        <td class="py-3 px-2 text-xs font-semibold text-slate-500">${asal}</td>
+                        <td class="py-3 px-2 text-center">
+                            <button onclick="printSingleCard('${no}', '${jenis}', '${nama}', '${asal}')" class="bg-slate-900 hover:bg-black text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg tracking-wider cursor-pointer transition">
+                                🖨️ CETAK KARTU
                             </button>
                         </td>
                     </tr>
@@ -278,50 +254,52 @@
             });
         }
 
-        function cetakNomorPeserta(nomorUrut, jenisLomba, namaPeserta, asalPeserta) {
+        function filterLomba() {
+            const keyword = document.getElementById('lomba-search').value.toLowerCase();
+            const filtered = localDataLomba.filter(item => {
+                let jenis = (item.cabang_perlombaan || item.jenis || '').toLowerCase();
+                let nama = (item.nama_lengkap_/_nama_tim || item.nama || '').toLowerCase();
+                let asal = (item.asal_utusan_/_kontingen || item.asal || '').toLowerCase();
+                return jenis.includes(keyword) || nama.includes(keyword) || asal.includes(keyword);
+            });
+            renderLomba(filtered);
+        }
+
+        function printSingleCard(no, lomba, nama, asal) {
             const printArea = document.getElementById('print-card-area');
-            
-            // Format Cetak dengan KOP Resmi PHBN Bolano
             printArea.innerHTML = `
-                <div style="font-family: 'Arial', sans-serif; width: 100%; max-width: 600px; margin: 40px auto; border: 4px double #000; padding: 25px; text-align: center; box-sizing: border-box; background: #fff;">
-                    <div style="border-bottom: 4px solid #000; padding-bottom: 12px; margin-bottom: 20px;">
-                        <h2 style="margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: #000;">HUT KEMERDEKAAN RI KE 81</h2>
-                        <h3 style="margin: 6px 0 0 0; font-size: 13px; font-weight: 700; text-transform: uppercase; color: #000; letter-spacing: 0.5px;">PANITIA HARI BESAR NASIONAL KECAMATAN BOLANO</h3>
+                <div style="width: 480px; margin: 40px auto; padding: 25px; border: 4px dashed #000; font-family: sans-serif; background: #white; border-radius: 15px;">
+                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="margin: 0; font-size: 18px; font-weight: 900; letter-spacing: 1px;">KARTU PESERTA RESMI PHBN</h2>
+                        <p style="margin: 3px 0 0 0; font-size: 11px; font-weight: bold; color: #555;">KECAMATAN BOLANO - HUT RI</p>
                     </div>
-                    
-                    <div style="font-size: 15px; font-weight: bold; text-transform: uppercase; background: #e2e8f0; padding: 8px; border: 1px solid #000; margin-bottom: 20px; letter-spacing: 0.5px;">
-                        LOMBA: ${jenisLomba}
-                    </div>
-                    
-                    <div style="font-size: 85px; font-weight: 900; margin: 10px 0; font-family: 'Courier New', monospace; font-variant-numeric: tabular-nums;">
-                        ${nomorUrut}
-                    </div>
-                    
-                    <div style="margin-top: 20px; border-top: 2px dashed #000; padding-top: 15px; text-align: left;">
-                        <table style="width: 100%; font-size: 15px; border-collapse: collapse;">
-                            <tr>
-                                <td style="width: 30%; font-weight: bold; padding: 5px 0; vertical-align: top;">Nama Peserta</td>
-                                <td style="width: 5%; font-weight: bold; vertical-align: top;">:</td>
-                                <td style="font-weight: 900; font-size: 17px; padding: 5px 0; text-transform: uppercase;">${namaPeserta}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold; padding: 5px 0; vertical-align: top;">Asal / Instansi</td>
-                                <td style="font-weight: bold; vertical-align: top;">:</td>
-                                <td style="padding: 5px 0; color: #333;">${asalPeserta}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    
-                    <div style="margin-top: 35px; font-size: 10px; text-align: center; color: #666; font-style: italic; border-top: 1px solid #eee; padding-top: 8px;">
-                        Sistem Transparansi Digital & Pendaftaran PHBN Kecamatan Bolano
+                    <table style="width: 100%; font-size: 13px; font-weight: bold; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 6px 0; color: #666; width: 110px;">NOMOR URUT</td>
+                            <td style="font-size: 22px; font-weight: 900; color: #d32f2f;">: # ${no}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #666;">CABANG LOMBA</td>
+                            <td style="text-transform: uppercase;">: ${lomba}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #666;">NAMA PESERTA</td>
+                            <td style="font-size: 15px; font-weight: 900;">: ${nama}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #666;">ASAL UTUSAN</td>
+                            <td>: ${asal}</td>
+                        </tr>
+                    </table>
+                    <div style="margin-top: 20px; text-align: center; font-size: 9px; color: #888; border-top: 1px solid #eee; padding-top: 8px;">
+                        * Harap dibawa saat registrasi ulang di arena perlombaan.
                     </div>
                 </div>
             `;
-
             window.print();
         }
 
-        function renderGaleri() {
+        function renderGaleri(dataGaleri) {
             const container = document.getElementById('galeri-container');
             container.innerHTML = '';
 
@@ -329,26 +307,49 @@
                 container.innerHTML = `<p class="text-slate-400 italic text-sm col-span-3 text-center py-6">Belum ada dokumentasi dipublikasikan.</p>`;
                 return;
             }
+            
             dataGaleri.forEach(item => {
                 let agenda = item.nama_agenda_kegiatan || item.nama || '-';
                 let ket = item.keterangan_tambahan || item.ket || '-';
-                let url = item.link_url_(_google_drive_/_youtube_) || item.link || '#';
+                
+                // Ambil string mentah gabungan link dari properti objek
+                let rawUrl = item['link_url_(google_drive_/_youtube)'] || item.link || item.link_url || '#';
+                
+                // Pisahkan string link berdasarkan koma atau spasi, lalu buang item kosong (.trim)
+                let urlArray = rawUrl.split(/[\s,]+/).filter(url => url.trim() !== '');
+
+                // Bangun tombol untuk setiap tautan yang terdeteksi
+                let tombolLinks = '';
+                urlArray.forEach((url, index) => {
+                    let labelTautan = `🔗 Buka Dokumentasi ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    if(url.includes('youtube.com') || url.includes('youtu.be')) {
+                        labelTautan = `📺 Tonton Video ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    }
+                    
+                    tombolLinks += `
+                        <a href="${url}" target="_blank" class="mt-2 block text-center bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs cursor-pointer">
+                            ${labelTautan}
+                        </a>
+                    `;
+                });
+
                 container.innerHTML += `
                     <div class="border border-slate-200 p-5 rounded-2xl bg-white flex flex-col justify-between shadow-xs hover:border-red-300 transition">
                         <div>
                             <h4 class="font-extrabold text-slate-800 text-base">${agenda}</h4>
-                            <p class="text-xs text-slate-500 mt-1">${ket}</p>
+                            <p class="text-xs text-slate-500 mt-1 mb-3">${let = ket}</p>
                         </div>
-                        <a href="${url}" target="_blank" class="mt-4 block text-center bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs cursor-pointer">🔗 Buka Dokumentasi Resmi</a>
+                        <div class="mt-auto">
+                            ${tombolLinks}
+                        </div>
                     </div>
                 `;
             });
         }
 
         window.onload = function() {
-            loadAllData();
-            setInterval(loadAllData, 60000);
-        }
+            fetchData();
+        };
     </script>
 </body>
 </html>
