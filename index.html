@@ -138,14 +138,14 @@
         </section>
 
         <section id="content-galeri" class="tab-content mt-6 hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 bg-slate-100 p-4 rounded-2xl border border-slate-200/60 shadow-xs">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 bg-slate-100 p-4 rounded-2xl border border-slate-200/60 shadow-sm">
                 <div>
                     <h2 class="font-extrabold text-slate-800 text-base flex items-center">
                         <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-600 mr-2"></span> Album Galeri & Dokumentasi
                     </h2>
                     <p class="text-xs text-slate-400 font-medium mt-0.5">Kumpulan dokumentasi foto/video kegiatan PHBN di lapangan</p>
                 </div>
-                <button data-refresh="Galeri" class="w-full sm:w-auto bg-white border border-slate-300 hover:bg-slate-50 font-bold text-xs py-2 px-3.5 rounded-xl transition text-zinc-700 active:scale-95">
+                <button data-refresh="Galeri" class="w-full sm:w-auto bg-white border border-slate-300 hover:bg-slate-50 font-bold text-xs py-2 px-3.5 rounded-xl transition text-slate-700 active:scale-95">
                     🔄 Segarkan Data
                 </button>
             </div>
@@ -162,7 +162,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9YoHzHrdyE8u6KZSNraxIYRyP_LC-_cFN0JYxgfAMgsD2X5gEvuLUPpfEr2c4S7L_/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzESxniUujVjaSc9bgxzEoiYOixe7fGDm5xG3qU5N0YJP_6uGHlDyp45QJhH_ls7fG0/exec";
         let cacheData = { Keuangan: [], Lomba: [], Galeri: [] };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -170,7 +170,7 @@
             loadSheetData('Lomba');
             loadSheetData('Galeri');
 
-            // PEMICU REFRESH ANTI-LAG & CACHE BYPASS
+            // PEMICU REFRESH ANTI-LAG & CACHE BYPASS MODEREN
             document.querySelectorAll('[data-refresh]').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const target = this.getAttribute('data-refresh');
@@ -233,7 +233,7 @@
 
             let tMasuk = 0, tKeluar = 0;
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400 italic text-sm">Belum ada data transaksi keuangan.</td></tr>';
                 return;
             }
@@ -242,14 +242,17 @@
                 const rawTgl = item.timestamp || item.tanggal || '';
                 const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : '-';
                 
-                const jenis = (item.jenis || '').trim().toLowerCase();
-                const badgeJenis = jenis === 'pemasukan' || jenis === 'pendapatan'
+                // MULTI-FALLBACK JENIS TRANSAKSI AGAR TABEL TIDAK CRASH JIKA HEADER BERUBAH
+                const jenisRaw = item.jenis || item.arus_kas || item.kategori || item.tipe || '';
+                const jenis = jenisRaw.toString().trim().toLowerCase();
+                
+                const badgeJenis = jenis === 'pemasukan' || jenis === 'pendapatan' || jenis.includes('masuk')
                     ? '<span class="bg-emerald-50 text-emerald-600 font-extrabold text-[10px] tracking-wide uppercase px-2 py-0.5 rounded-md border border-emerald-200/50">Masuk</span>' 
                     : '<span class="bg-rose-50 text-rose-600 font-extrabold text-[10px] tracking-wide uppercase px-2 py-0.5 rounded-md border border-rose-200/50">Keluar</span>';
 
                 const nominal = Number(item.jumlah || 0);
-                if (jenis === 'pemasukan' || jenis === 'pendapatan') tMasuk += nominal;
-                if (jenis === 'pengeluaran') tKeluar += nominal;
+                if (jenis === 'pemasukan' || jenis === 'pendapatan' || jenis.includes('masuk')) tMasuk += nominal;
+                else tKeluar += nominal;
 
                 const itemKegiatan = item.item_kegiatan || item.agenda || '-';
                 const subRincian = item.sub_rincian || '-';
@@ -263,7 +266,7 @@
                             <div class="font-bold text-sm text-slate-800 tracking-tight leading-tight">${itemKegiatan}</div>
                             <div class="text-xs text-slate-400 font-medium mt-0.5 italic">${subRincian}</div>
                         </td>
-                        <td class="p-3.5 text-right font-mono font-bold text-sm ${jenis === 'pemasukan' || jenis === 'pendapatan' ? 'text-emerald-600' : 'text-rose-600'}">
+                        <td class="p-3.5 text-right font-mono font-bold text-sm ${jenis === 'pemasukan' || jenis === 'pendapatan' || jenis.includes('masuk') ? 'text-emerald-600' : 'text-rose-600'}">
                             Rp${nominal.toLocaleString('id-ID')}
                         </td>
                         <td class="p-3.5 text-center">
@@ -284,7 +287,7 @@
             const container = document.getElementById('lomba-container');
             container.innerHTML = '';
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400 italic text-sm">Belum ada data pendaftar lomba.</td></tr>';
                 return;
             }
@@ -317,7 +320,7 @@
             const container = document.getElementById('galeri-container');
             container.innerHTML = '';
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<div class="col-span-full text-center text-slate-400 italic py-12 text-sm bg-white border border-slate-200 rounded-2xl shadow-sm">Belum ada album dokumentasi yang disematkan.</div>';
                 return;
             }
@@ -411,7 +414,7 @@
                 <table class="w-full my-3 space-y-1 text-[11px]">
                     <tr><td class="w-24 font-bold text-slate-500">No. Ref</td><td>: <span class="text-slate-900 font-mono font-bold">REF/PHBN-${idx + 1}</span></td></tr>
                     <tr><td class="font-bold text-slate-500">Tanggal</td><td>: <span class="text-slate-800 font-medium">${formatTgl}</span></td></tr>
-                    <tr><td class="font-bold text-slate-500">Arus Kas</td><td>: <span class="font-bold text-slate-900">${(item.jenis || '').toUpperCase()}</span></td></tr>
+                    <tr><td class="font-bold text-slate-500">Arus Kas</td><td>: <span class="font-bold text-slate-900">${(item.jenis || item.arus_kas || '').toUpperCase()}</span></td></tr>
                     <tr><td class="font-bold text-slate-500">Agenda/Item</td><td>: <span class="text-slate-800 font-medium">${item.item_kegiatan || item.agenda || '-'}</span></td></tr>
                     <tr><td class="font-bold text-slate-500">Sub Rincian</td><td>: <span class="text-slate-800 font-medium">${item.sub_rincian || '-'}</span></td></tr>
                 </table>
@@ -432,10 +435,6 @@
                         <div class="h-12"></div>
                         <p class="font-bold text-slate-800 border-b border-slate-400 inline-block px-4">...................................</p>
                     </div>
-                </div>
-
-                <div class="text-center text-[9px] text-slate-400 mt-6 leading-tight italic border-t border-slate-200 pt-2">
-                    Dokumen sinkronisasi otomatis dari sistem cloud transparansi PHBN Kecamatan Bolano.
                 </div>
             `;
 
