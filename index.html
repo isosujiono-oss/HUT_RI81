@@ -401,16 +401,19 @@
             const rawTgl = item.timestamp || item.tanggal || '';
             const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '-';
             const nominal = Number(item.jumlah || 0);
-
+        
             const printBox = document.getElementById('print-content-box');
             printBox.innerHTML = `
-                <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2">
-                    HUT KEMERDEKAAN RI PANITIA PERINGATAN HARI BESAR NASIONAL<br>
-                    <span class="text-[10px] font-bold text-red-600 tracking-wide">KECAMATAN BOLANO</span>
+                <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2 leading-tight">
+                    <span class="text-sm font-black tracking-wide block">HARI ULANG TAHUN KEMERDEKAAN RI 81</span>
+                    PANITIA HARI BESAR NASIONAL<br>
+                    <span class="text-[10px] tracking-wider block mt-0.5">KECAMATAN BOLANO</span>
                 </div>
-                <div class="text-center my-2 font-bold text-xs tracking-wider uppercase underline">
-                    BUKTI TRANSAKSI KAS MANDIRI
+                
+                <div class="text-center my-2.5 font-bold text-xs tracking-wider uppercase underline">
+                    LAPORAN TRANSAKSI KAS MASUK & KELUAR
                 </div>
+                
                 <table class="w-full my-3 space-y-1 text-[11px]">
                     <tr><td class="w-24 font-bold text-slate-500">No. Ref</td><td>: <span class="text-slate-900 font-mono font-bold">REF/PHBN-${idx + 1}</span></td></tr>
                     <tr><td class="font-bold text-slate-500">Tanggal</td><td>: <span class="text-slate-800 font-medium">${formatTgl}</span></td></tr>
@@ -418,6 +421,7 @@
                     <tr><td class="font-bold text-slate-500">Agenda/Item</td><td>: <span class="text-slate-800 font-medium">${item.item_kegiatan || item.agenda || '-'}</span></td></tr>
                     <tr><td class="font-bold text-slate-500">Sub Rincian</td><td>: <span class="text-slate-800 font-medium">${item.sub_rincian || '-'}</span></td></tr>
                 </table>
+                
                 <div class="border-t border-b border-slate-400 py-2 my-2 text-center text-base font-black bg-slate-50 font-mono">
                     NOMINAL: Rp${nominal.toLocaleString('id-ID')}
                 </div>
@@ -436,11 +440,14 @@
                         <p class="font-bold text-slate-800 border-b border-slate-400 inline-block px-4">...................................</p>
                     </div>
                 </div>
+        
+                <div class="text-center text-[9px] text-slate-400 mt-6 leading-tight italic border-t border-slate-200 pt-2">
+                    Dokumen sinkronisasi otomatis dari sistem cloud transparansi PHBN Kecamatan Bolano.
+                </div>
             `;
-
+        
             window.print();
         }
-
         function printKartuPeserta(idx) {
             const item = cacheData.Lomba[idx];
             if (!item) return;
