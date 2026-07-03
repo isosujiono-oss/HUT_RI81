@@ -10,8 +10,8 @@
             body { background: white; color: black; }
             .no-print { display: none !important; }
             .print-block { display: block !important; }
-            body > :not(#print-card-area) { display: none !important; }
-            #print-card-area { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            body > :not(#print-area) { display: none !important; }
+            #print-area { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
         }
     </style>
 </head>
@@ -124,11 +124,12 @@
                                 <th class="p-3.5 w-52">Cabang Lomba</th>
                                 <th class="p-3.5">Nama Peserta / Tim</th>
                                 <th class="p-3.5 w-44">Asal Kontingen</th>
+                                <th class="p-3.5 text-center w-20">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="lomba-container" class="divide-y divide-slate-100">
                             <tr>
-                                <td colspan="4" class="p-8 text-center text-slate-400 italic text-sm">Sedang memuat data pendaftar...</td>
+                                <td colspan="5" class="p-8 text-center text-slate-400 italic text-sm">Sedang memuat data pendaftar...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -156,23 +157,9 @@
         </section>
     </main>
 
-    <div id="print-card-area" class="hidden p-6 bg-white font-mono text-xs max-w-sm mx-auto border-2 border-dashed border-slate-400 rounded-lg">
-        <div class="text-center font-bold text-sm uppercase mb-1 border-b border-slate-300 pb-2">
-            KWITANSI RESMI BUKTI KAS PHBN<br><span class="text-xs font-medium">KECAMATAN BOLANO</span>
-        </div>
-        <table class="w-full my-3 space-y-1">
-            <tr><td class="w-24 font-bold">No. Ref</td><td>: <span id="p-id">-</span></td></tr>
-            <tr><td class="font-bold">Tanggal</td><td>: <span id="p-tgl">-</span></td></tr>
-            <tr><td class="font-bold">Arus Kas</td><td>: <span id="p-jenis">-</span></td></tr>
-            <tr><td class="font-bold">Agenda/Item</td><td>: <span id="p-item">-</span></td></tr>
-            <tr><td class="font-bold">Sub Rincian</td><td>: <span id="p-sub">-</span></td></tr>
-        </table>
-        <div class="border-t border-b border-slate-400 py-2 my-2 text-center text-base font-black bg-slate-50">
-            TOTAL: <span id="p-jumlah">Rp0</span>
-        </div>
-        <div class="text-center text-[10px] text-slate-400 mt-4 leading-tight italic">
-            Dokumen ini dicetak otomatis dari sistem cloud transparansi PHBN Bolano sebagai bukti administrasi yang sah.
-        </div>
+    <div id="print-area" class="hidden p-6 bg-white font-mono text-xs max-w-sm mx-auto border-2 border-dashed border-slate-400 rounded-lg">
+        <div id="print-content-box">
+            </div>
     </div>
 
     <script>
@@ -230,12 +217,12 @@
                 const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : '-';
                 
                 const jenis = (item.jenis || '').trim().toLowerCase();
-                const badgeJenis = jenis === 'pemasukan' 
+                const badgeJenis = jenis === 'pemasukan' || jenis === 'pendapatan'
                     ? '<span class="bg-emerald-50 text-emerald-600 font-extrabold text-[10px] tracking-wide uppercase px-2 py-0.5 rounded-md border border-emerald-200/50">Masuk</span>' 
                     : '<span class="bg-rose-50 text-rose-600 font-extrabold text-[10px] tracking-wide uppercase px-2 py-0.5 rounded-md border border-rose-200/50">Keluar</span>';
 
                 const nominal = Number(item.jumlah || 0);
-                if (jenis === 'pemasukan') tMasuk += nominal;
+                if (jenis === 'pemasukan' || jenis === 'pendapatan') tMasuk += nominal;
                 if (jenis === 'pengeluaran') tKeluar += nominal;
 
                 const itemKegiatan = item.item_kegiatan || item.agenda || '-';
@@ -250,11 +237,11 @@
                             <div class="font-bold text-sm text-slate-800 tracking-tight leading-tight">${itemKegiatan}</div>
                             <div class="text-xs text-slate-400 font-medium mt-0.5 italic">${subRincian}</div>
                         </td>
-                        <td class="p-3.5 text-right font-mono font-bold text-sm ${jenis === 'pemasukan' ? 'text-emerald-600' : 'text-rose-600'}">
+                        <td class="p-3.5 text-right font-mono font-bold text-sm ${jenis === 'pemasukan' || jenis === 'pendapatan' ? 'text-emerald-600' : 'text-rose-600'}">
                             Rp${nominal.toLocaleString('id-ID')}
                         </td>
                         <td class="p-3.5 text-center">
-                            <button onclick="printNota(${idx})" class="bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200/60 p-1.5 rounded-lg text-xs font-bold transition shadow-xs cursor-pointer">
+                            <button onclick="printNotaKeuangan(${idx})" class="bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200/60 p-1.5 rounded-lg text-xs font-bold transition shadow-xs cursor-pointer">
                                 🖨️
                             </button>
                         </td>
@@ -272,12 +259,11 @@
             container.innerHTML = '';
 
             if (data.length === 0) {
-                container.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400 italic text-sm">Belum ada data pendaftar lomba.</td></tr>';
+                container.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400 italic text-sm">Belum ada data pendaftar lomba.</td></tr>';
                 return;
             }
 
-            data.forEach(item => {
-                // INTEGRASI FINAL: Taktik fallback berlapis untuk menjamin pembacaan data tetap normal
+            data.forEach((item, idx) => {
                 const noUrutRaw = item.nomor || item.nomor_urut_pendaftaran || item.nomor_urut || '0'; 
                 const noUrut = String(noUrutRaw).padStart(3, '0');
                 
@@ -291,6 +277,11 @@
                         <td class="p-3.5 font-bold text-sm tracking-tight text-slate-800">${cabangLomba}</td>
                         <td class="p-3.5 text-sm font-medium">${namaPeserta}</td>
                         <td class="p-3.5 text-sm text-slate-500 font-semibold">${asalKontingen}</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="printKartuPeserta(${idx})" class="bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200/60 p-1.5 rounded-lg text-xs font-bold transition shadow-xs cursor-pointer">
+                                🖨️
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
@@ -372,21 +363,87 @@
             });
         }
 
-        function printNota(idx) {
+        function printNotaKeuangan(idx) {
             const item = cacheData.Keuangan[idx];
             if (!item) return;
 
             const rawTgl = item.timestamp || item.tanggal || '';
             const formatTgl = rawTgl ? new Date(rawTgl).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '-';
-
-            document.getElementById('p-id').innerText = `REF/PHBN-${idx + 1}`;
-            document.getElementById('p-tgl').innerText = formatTgl;
-            document.getElementById('p-jenis').innerText = (item.jenis || '').toUpperCase();
-            document.getElementById('p-item').innerText = item.item_kegiatan || item.agenda || '-';
-            document.getElementById('p-sub').innerText = item.sub_rincian || '-';
-            
             const nominal = Number(item.jumlah || 0);
-            document.getElementById('p-jumlah').innerText = `Rp${nominal.toLocaleString('id-ID')}`;
+
+            const printBox = document.getElementById('print-content-box');
+            printBox.innerHTML = `
+                <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2">
+                    HUT KEMERDEKAAN RI PANITIA PERINGATAN HARI BESAR NASIONAL<br>
+                    <span class="text-[10px] font-bold text-red-600 tracking-wide">KECAMATAN BOLANO</span>
+                </div>
+                <div class="text-center my-2 font-bold text-xs tracking-wider uppercase underline">
+                    BUKTI TRANSAKSI KAS MANDIRI
+                </div>
+                <table class="w-full my-3 space-y-1 text-[11px]">
+                    <tr><td class="w-24 font-bold text-slate-500">No. Ref</td><td>: <span class="text-slate-900 font-mono font-bold">REF/PHBN-${idx + 1}</span></td></tr>
+                    <tr><td class="font-bold text-slate-500">Tanggal</td><td>: <span class="text-slate-800 font-medium">${formatTgl}</span></td></tr>
+                    <tr><td class="font-bold text-slate-500">Arus Kas</td><td>: <span class="font-bold text-slate-900">${(item.jenis || '').toUpperCase()}</span></td></tr>
+                    <tr><td class="font-bold text-slate-500">Agenda/Item</td><td>: <span class="text-slate-800 font-medium">${item.item_kegiatan || item.agenda || '-'}</span></td></tr>
+                    <tr><td class="font-bold text-slate-500">Sub Rincian</td><td>: <span class="text-slate-800 font-medium">${item.sub_rincian || '-'}</span></td></tr>
+                </table>
+                <div class="border-t border-b border-slate-400 py-2 my-2 text-center text-base font-black bg-slate-50 font-mono">
+                    NOMINAL: Rp${nominal.toLocaleString('id-ID')}
+                </div>
+                
+                <div class="mt-8 grid grid-cols-2 text-center text-[10px] gap-4">
+                    <div>
+                        <p class="font-medium text-slate-500">Mengetahui,</p>
+                        <p class="font-bold text-slate-800 uppercase mt-0.5">Ketua Panitia</p>
+                        <div class="h-12"></div>
+                        <p class="font-bold text-slate-800 border-b border-slate-400 inline-block px-4">...................................</p>
+                    </div>
+                    <div>
+                        <p class="font-medium text-slate-500">Bolano, ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})}</p>
+                        <p class="font-bold text-slate-800 uppercase mt-0.5">Bendahara</p>
+                        <div class="h-12"></div>
+                        <p class="font-bold text-slate-800 border-b border-slate-400 inline-block px-4">...................................</p>
+                    </div>
+                </div>
+
+                <div class="text-center text-[9px] text-slate-400 mt-6 leading-tight italic border-t border-slate-200 pt-2">
+                    Dokumen sinkronisasi otomatis dari sistem cloud transparansi PHBN Kecamatan Bolano.
+                </div>
+            `;
+
+            window.print();
+        }
+
+        function printKartuPeserta(idx) {
+            const item = cacheData.Lomba[idx];
+            if (!item) return;
+
+            const noUrutRaw = item.nomor || item.nomor_urut_pendaftaran || item.nomor_urut || '0'; 
+            const noUrut = String(noUrutRaw).padStart(3, '0');
+            const cabangLomba = item.jenis || item.cabang_perlombaan || item.cabang_lomba || item.jenis_lomba || '-';
+            const namaPeserta = item.nama || item['nama_lengkap_/_nama_tim'] || item.nama_lengkap || '-';
+            const asalKontingen = item.asal || item['asal_utusan_/_kontingen'] || item.asal_kontingen || '-';
+
+            const printBox = document.getElementById('print-content-box');
+            printBox.innerHTML = `
+                <div class="text-center font-bold text-xs uppercase mb-1 border-b-2 border-double border-slate-400 pb-2">
+                    HUT KEMERDEKAAN RI PANITIA PERINGATAN HARI BESAR NASIONAL<br>
+                    <span class="text-[10px] font-bold text-red-600 tracking-wide">KECAMATAN BOLANO</span>
+                </div>
+                <div class="text-center my-3 bg-red-50 py-2 rounded-md border border-red-200">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nomor Urut Pendaftaran</div>
+                    <div class="text-3xl font-black text-red-600 font-mono tracking-tight"># ${noUrut}</div>
+                </div>
+                <table class="w-full my-3 text-[11px] space-y-1">
+                    <tr><td class="w-24 font-bold text-slate-500">Cabang Lomba</td><td>: <span class="font-bold text-slate-900">${cabangLomba}</span></td></tr>
+                    <tr><td class="font-bold text-slate-500">Nama / Tim</td><td>: <span class="font-bold text-slate-900">${namaPeserta}</span></td></tr>
+                    <tr><td class="font-bold text-slate-500">Kontingen</td><td>: <span class="font-medium text-slate-800">${asalKontingen}</span></td></tr>
+                </table>
+                <div class="border-t border-slate-300 pt-2 mt-4 flex justify-between items-center text-[9px] text-slate-400 italic">
+                    <span>Validasi Cloud PHBN</span>
+                    <span class="font-bold font-mono text-red-600">STATUS: TERDAFTAR</span>
+                </div>
+            `;
 
             window.print();
         }
