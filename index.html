@@ -163,7 +163,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzESxniUujVjaSc9bgxzEoiYOixe7fGDm5xG3qU5N0YJP_6uGHlDyp45QJhH_ls7fG0/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9YoHzHrdyE8u6KZSNraxIYRyP_LC-_cFN0JYxgfAMgsD2X5gEvuLUPpfEr2c4S7L_/exec";
         let cacheData = { Keuangan: [], Lomba: [], Galeri: [] };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -378,7 +378,7 @@
                     <span class="text-[10px] font-bold text-red-600 tracking-wide">KECAMATAN BOLANO</span>
                 </div>
                 <div class="text-center my-2 font-bold text-xs tracking-wider uppercase underline">
-                    BUKTI TRANSAKSI KAS MANDIRI
+                    BUKTI TRANSKASIKAS MANDIRI
                 </div>
                 <table class="w-full my-3 space-y-1 text-[11px]">
                     <tr><td class="w-24 font-bold text-slate-500">No. Ref</td><td>: <span class="text-slate-900 font-mono font-bold">REF/PHBN-${idx + 1}</span></td></tr>
@@ -439,7 +439,23 @@
                     <tr><td class="font-bold text-slate-500">Nama / Tim</td><td>: <span class="font-bold text-slate-900">${namaPeserta}</span></td></tr>
                     <tr><td class="font-bold text-slate-500">Kontingen</td><td>: <span class="font-medium text-slate-800">${asalKontingen}</span></td></tr>
                 </table>
-                <div class="border-t border-slate-300 pt-2 mt-4 flex justify-between items-center text-[9px] text-slate-400 italic">
+                
+                <div class="mt-6 grid grid-cols-2 text-center text-[10px] gap-4">
+                    <div>
+                        <p class="font-medium text-slate-500">Mengetahui,</p>
+                        <p class="font-bold text-slate-800 uppercase mt-0.5">Ketua Panitia</p>
+                        <div class="h-10"></div>
+                        <p class="font-bold text-slate-800 border-b border-slate-400 inline-block px-3">...................................</p>
+                    </div>
+                    <div>
+                        <p class="font-medium text-slate-500">Bolano, ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})}</p>
+                        <p class="font-bold text-slate-800 uppercase mt-0.5">Bendahara</p>
+                        <div class="h-10"></div>
+                        <p class="font-bold text-slate-800 border-b border-slate-400 inline-block px-3">...................................</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-2 mt-4 flex justify-between items-center text-[9px] text-slate-400 italic">
                     <span>Validasi Cloud PHBN</span>
                     <span class="font-bold font-mono text-red-600">STATUS: TERDAFTAR</span>
                 </div>
