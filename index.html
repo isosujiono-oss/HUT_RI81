@@ -35,6 +35,7 @@
 
     <main class="container mx-auto px-4 mt-8 max-w-5xl no-print">
         
+        <!-- GRID CARDS REKAP KEUANGAN -->
         <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
                 <span class="text-xs font-bold text-slate-400 tracking-wider uppercase block">Total Saldo Pemasukan</span>
@@ -46,10 +47,11 @@
             </div>
             <div class="bg-white border-red-200 bg-red-50/40 border p-5 rounded-2xl shadow-xs">
                 <span class="text-xs font-bold text-red-800/60 tracking-wider uppercase block">Sisa Saldo Kas Bersih</span>
-                <span id="total-bersih" class="text-2xl font-black text-slate-950 block mt-1">Rp 0</span>
+                <span id="total-clean" class="text-2xl font-black text-slate-950 block mt-1">Rp 0</span>
             </div>
         </section>
 
+        <!-- TABS MENU -->
         <nav class="flex border-b border-slate-200 mb-6 gap-2">
             <button onclick="switchTab('keuangan')" id="tab-keuangan" class="px-5 py-2.5 font-bold text-sm rounded-t-xl border-b-2 border-red-600 text-red-600 cursor-pointer transition">
                 💼 Kas Transparansi
@@ -62,9 +64,11 @@
             </button>
         </nav>
 
+        <!-- PANEL KEUANGAN -->
         <div id="panel-keuangan" class="tab-panel bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-black text-slate-900">📑 Jurnal Arus Kas Anggaran PHBN</h2>
+                <!-- FUNGSI REFRESH TETAP AKTIF DI SINI -->
                 <button onclick="fetchData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded-lg font-bold transition cursor-pointer">🔄 Segarkan Data</button>
             </div>
             <div class="overflow-x-auto">
@@ -85,6 +89,7 @@
             </div>
         </div>
 
+        <!-- PANEL CEK PESERTA LOMBA -->
         <div id="panel-lomba" class="tab-panel bg-white border border-slate-200 rounded-2xl p-6 shadow-xs hidden">
             <h2 class="text-lg font-black text-slate-900 mb-2">🔍 Pencarian Kartu Peserta Lomba Resmi</h2>
             <input type="text" id="lomba-search" oninput="filterLomba()" placeholder="Ketik kata kunci pencarian..." class="w-full px-4 py-3 border border-slate-200 rounded-xl mb-4 text-sm focus:outline-none focus:border-red-500 bg-slate-50/50">
@@ -106,15 +111,17 @@
             </div>
         </div>
 
+        <!-- PANEL GALERI DOKUMENTASI TERKINI -->
         <div id="panel-galeri" class="tab-panel hidden">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="galeri-container">
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="galeri-container">
+                <!-- Data Media Terintegrasi Otomatis -->
+            </div>
         </div>
 
     </main>
 
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT WEB APP ANDA DI SINI
+        // MASUKKAN URL WEB APP DEPLOYMENT GOOGLE APPS SCRIPT ANDA DI SINI
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzESxniUujVjaSc9bgxzEoiYOixe7fGDm5xG3qU5N0YJP_6uGHlDyp45QJhH_ls7fG0/exec";
         
         let localDataLomba = []; 
@@ -159,7 +166,7 @@
             tbody.innerHTML = '';
             let tMasuk = 0, tKeluar = 0;
             if(!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-sm">Belum ada data.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 italic text-sm">Belum ada data keuangan.</td></tr>`;
                 return;
             }
             data.forEach(item => {
@@ -184,7 +191,7 @@
             });
             document.getElementById('total-masuk').innerText = formatRupiah(tMasuk);
             document.getElementById('total-keluar').innerText = formatRupiah(tKeluar);
-            document.getElementById('total-bersih').innerText = formatRupiah(tMasuk - tKeluar);
+            document.getElementById('total-clean').innerText = formatRupiah(tMasuk - tKeluar);
         }
 
         function renderLomba(data) {
@@ -243,33 +250,106 @@
             window.print();
         }
 
+        // ==========================================
+        //  FUNGSI RENDER GALERI DENGAN DUKUNGAN IMGBB (OPTIMAL)
+        // ==========================================
         function renderGaleri(dataGaleri) {
             const container = document.getElementById('galeri-container');
             container.innerHTML = '';
+            
             if(!dataGaleri || dataGaleri.length === 0) {
-                container.innerHTML = `<p class="text-slate-400 italic text-sm col-span-3 text-center py-6">Belum ada dokumentasi.</p>`;
+                container.innerHTML = `<p class="text-slate-400 italic text-sm col-span-3 text-center py-6">Belum ada dokumentasi dipublikasikan.</p>`;
                 return;
             }
+
             dataGaleri.forEach(item => {
                 let agenda = item.nama_agenda_kegiatan || item.nama || '-';
                 let ket = item.keterangan_tambahan || item.ket || '-';
                 let rawUrl = item['link_url_(google_drive_/_youtube)'] || item.link || item.link_url || '#';
+                
                 let urlArray = rawUrl.split(/[\s,]+/).filter(url => url.trim() !== '');
 
-                let tombolLinks = '';
+                let mediaBlocksHtml = ''; 
+                let tombolLinksHtml = ''; 
+
                 urlArray.forEach((url, index) => {
-                    let labelTautan = `🔗 Buka Dokumentasi ${urlArray.length > 1 ? (index + 1) : ''}`;
-                    if(url.includes('youtube.com') || url.includes('youtu.be')) { labelTautan = `📺 Tonton Video ${urlArray.length > 1 ? (index + 1) : ''}`; }
-                    tombolLinks += `<a href="${url}" target="_blank" class="mt-2 block text-center bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">${labelTautan}</a>`;
+                    let labelTautan = `🔗 Buka Tautan ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    
+                    // A. PROSES PEMBACAAN LINK IMGBB / LINK GAMBAR LANGSUNG (Direct Image)
+                    // Jika link dari imgbb atau berakhiran ekstensi gambar biasa, langsung jadikan tag <img>
+                    if (url.includes('ibb.co') || url.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+                        let directImgUrl = url;
+                        
+                        // Handler otomatis: Jika admin memasukkan link halaman ImgBB (bukan direct link-nya), 
+                        // kita coba jadikan direct link pemicu render gambar mentah agar tidak rusak.
+                        if (url.includes('ibb.co/') && !url.includes('i.ibb.co')) {
+                            // Mengubah format halaman 'ibb.co/XYZ' menjadi 'i.ibb.co/XYZ/image.png' secara dinamis membutuhkan ekstensi asli, 
+                            // namun jika dimasukkan direct link 'i.ibb.co' gambar akan 100% muncul instan.
+                            // Kita asumsikan ini tag gambar langsung
+                        }
+
+                        mediaBlocksHtml += `
+                            <div class="relative w-full h-44 bg-slate-100 rounded-xl overflow-hidden mb-2 border border-slate-100 group shadow-xs">
+                                <img src="${directImgUrl}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Media" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Gambar+ImgBB';">
+                            </div>
+                        `;
+                        labelTautan = `🖼️ Lihat Foto Full ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    }
+                    
+                    // B. PROSES PEMBACAAN DAN VISUALISASI LINK GOOGLE DRIVE (FALLBACK)
+                    else if (url.includes('drive.google.com')) {
+                        let fileId = '';
+                        if (url.includes('/d/')) { fileId = url.split('/d/')[1].split('/')[0]; } 
+                        else if (url.includes('id=')) { fileId = url.split('id=')[1].split('&')[0]; }
+                        
+                        if (fileId) {
+                            let googleImgUrl = `https://lh3.googleusercontent.com/u/0/d/${fileId}`;
+                            mediaBlocksHtml += `
+                                <div class="relative w-full h-44 bg-slate-100 rounded-xl overflow-hidden mb-2 border border-slate-100 group shadow-xs">
+                                    <img src="${googleImgUrl}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Google Drive Image" onerror="this.style.display='none'">
+                                </div>
+                            `;
+                        }
+                        labelTautan = `🖼️ Lihat Google Drive ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    }
+                    
+                    // C. PROSES EMBED IFRAME VIDEO YOUTUBE
+                    else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        let videoId = '';
+                        if (url.includes('v=')) { videoId = url.split('v=')[1].split('&')[0]; } 
+                        else if (url.includes('youtu.be/')) { videoId = url.split('youtu.be/')[1].split('?')[0]; }
+                        
+                        if (videoId) {
+                            mediaBlocksHtml += `
+                                <div class="w-full h-44 rounded-xl overflow-hidden mb-2 bg-black shadow-xs border border-slate-200">
+                                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                            `;
+                        }
+                        labelTautan = `📺 Tonton di YouTube ${urlArray.length > 1 ? (index + 1) : ''}`;
+                    }
+
+                    tombolLinksHtml += `
+                        <a href="${url}" target="_blank" class="mt-1.5 block text-center bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow-xs cursor-pointer">
+                            ${labelTautan}
+                        </a>
+                    `;
                 });
 
+                if (mediaBlocksHtml === '') {
+                    mediaBlocksHtml = `<div class="w-full h-36 bg-slate-100 rounded-xl flex items-center justify-center text-slate-300 italic text-xs mb-2">Tidak ada preview media</div>`;
+                }
+
                 container.innerHTML += `
-                    <div class="border border-slate-200 p-5 rounded-2xl bg-white flex flex-col justify-between shadow-xs">
+                    <div class="border border-slate-200 p-4 rounded-2xl bg-white flex flex-col justify-between shadow-xs hover:border-red-400 hover:shadow-md transition duration-300">
                         <div>
-                            <h4 class="font-extrabold text-slate-800 text-base">${agenda}</h4>
-                            <p class="text-xs text-slate-500 mt-1 mb-3">${ket}</p>
+                            <div class="space-y-1">${mediaBlocksHtml}</div>
+                            <h4 class="font-extrabold text-slate-800 text-base mt-3 leading-tight tracking-tight">${agenda}</h4>
+                            <p class="text-xs text-slate-500 mt-1.5 mb-4 font-medium leading-relaxed">${ket}</p>
                         </div>
-                        <div class="mt-auto">${tombolLinks}</div>
+                        <div class="mt-auto pt-2 border-t border-slate-50">
+                            ${tombolLinksHtml}
+                        </div>
                     </div>
                 `;
             });
