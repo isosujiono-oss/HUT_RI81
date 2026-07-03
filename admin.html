@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin PHBN - Kecamatan Bolano</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js\"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-zinc-100 font-sans text-zinc-800 pb-16">
 
@@ -29,7 +29,7 @@
             <h3 class="text-lg font-black text-zinc-900 border-b border-zinc-100 pb-3 mb-4 flex items-center gap-2">
                 💰 Alokasi Kas Keuangan
             </h3>
-            <form id="form-keuangan" onsubmit="submitKeuangan(e)">
+            <form id="form-keuangan">
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Jenis Transaksi</label>
                     <select id="keuangan-jenis" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
@@ -39,11 +39,11 @@
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Nama Item Kegiatan</label>
-                    <input type="text" id="keuangan-item" placeholder="Contoh: Bantuan Swadaya Dusun I, Konsumsi Penutupan" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
+                    <input type="text" id="keuangan-item" placeholder="Contoh: Bantuan Swadaya Dusun I" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Sub Rincian Anggaran (Opsional)</label>
-                    <input type="text" id="keuangan-sub" placeholder="Contoh: Hadiah Juara 1 Sepak Bola, Terpal Panggung" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm">
+                    <input type="text" id="keuangan-sub" placeholder="Contoh: Hadiah Juara 1 Sepak Bola" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm">
                 </div>
                 <div class="mb-5">
                     <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Jumlah Uang (Rupiah)</label>
@@ -60,22 +60,22 @@
                 <h3 class="text-lg font-black text-zinc-900 border-b border-zinc-100 pb-3 mb-4 flex items-center gap-2">
                     🏆 Registrasi Peserta Lomba
                 </h3>
-                <form id="form-lomba" onsubmit="submitLomba(e)">
+                <form id="form-lomba">
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Nomor Urut Pendaftaran</label>
                         <input type="number" id="lomba-nomor" placeholder="Contoh: 1, 2, 3..." class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Cabang Perlombaan</label>
-                        <input type="text" id="lomba-jenis" placeholder="Contoh: Panjat Pinang Anak, Tarik Tambang Dewasa" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
+                        <input type="text" id="lomba-jenis" placeholder="Contoh: Panjat Pinang" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Nama Lengkap / Nama Tim</label>
-                        <input type="text" id="lomba-nama" placeholder="Contoh: Tim Rajawali Dusun 2, Budi Setiawan" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
+                        <input type="text" id="lomba-nama" placeholder="Contoh: Tim Rajawali Dusun 2" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
                     </div>
                     <div class="mb-5">
                         <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Asal Utusan / Kontingen</label>
-                        <input type="text" id="lomba-asal" placeholder="Contoh: RT 03 Dusun I, Desa Bolano" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
+                        <input type="text" id="lomba-asal" placeholder="Contoh: RT 03 Dusun I" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
                     </div>
                     <button type="submit" id="btn-submit-lomba" class="w-full bg-zinc-900 hover:bg-black text-white text-xs font-bold py-3.5 rounded-xl transition shadow-xs cursor-pointer">
                         📝 Daftarkan Peserta Resmi
@@ -88,15 +88,15 @@
             <h3 class="text-lg font-black text-zinc-900 border-b border-zinc-100 pb-3 mb-4 flex items-center gap-2">
                 🖼️ Publikasi Dokumentasi Kegiatan (Multi-Link)
             </h3>
-            <form id="form-galeri" onsubmit="submitGaleri(e)">
+            <form id="form-galeri">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Nama Agenda Kegiatan</label>
-                        <input type="text" id="galeri-nama" placeholder="Contoh: Lomba Gerak Jalan Kreatif, Malam Kesenian" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
+                        <input type="text" id="galeri-nama" placeholder="Contoh: Lomba Gerak Jalan Kreatif" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Keterangan Tambahan</label>
-                        <input type="text" id="galeri-ket" placeholder="Contoh: Berlangsung meriah diikuti 25 kelompok dari seluruh desa" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
+                        <input type="text" id="galeri-ket" placeholder="Contoh: Berlangsung meriah" class="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm" required>
                     </div>
                 </div>
                 <div class="mb-5">
@@ -137,16 +137,15 @@
     </main>
 
     <script>
-        // GANTI INI DENGAN URL WEB APP DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        const SCRIPT_URL = "PASTE_URL_WEB_APP_ANDA_DI_SINI";
+        // MASUKKAN URL GOOGLE APPS SCRIPT WEB APP ANDA DI SINI
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzESxniUujVjaSc9bgxzEoiYOixe7fGDm5xG3qU5N0YJP_6uGHlDyp45QJhH_ls7fG0/exec";
 
-        // Mencegah reload form bawaan browser
         document.getElementById('form-keuangan').addEventListener('submit', function(e) { e.preventDefault(); submitKeuangan(); });
         document.getElementById('form-lomba').addEventListener('submit', function(e) { e.preventDefault(); submitLomba(); });
         document.getElementById('form-galeri').addEventListener('submit', function(e) { e.preventDefault(); submitGaleri(); });
 
         function submitKeuangan() {
-            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return alert("Isi SCRIPT_URL terlebih dahulu di baris atas kode script.");
+            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return alert("Isi SCRIPT_URL terlebih dahulu.");
             const btn = document.getElementById('btn-submit-keuangan');
             btn.innerText = "⏳ Menyimpan..."; btn.disabled = true;
 
@@ -162,18 +161,18 @@
                 body: JSON.stringify({ action: 'insert', target: 'Keuangan', jenis, item_kegiatan, sub_rincian, jumlah })
             })
             .then(() => {
-                alert("Data keuangan sukses tersimpan!");
+                alert("Data keuangan sukses terkirim ke sistem!");
                 document.getElementById('form-keuangan').reset();
                 btn.innerText = "💾 Catat Transaksi Keuangan"; btn.disabled = false;
             })
             .catch(err => {
-                alert("Gagal mencatat data keuangan.");
+                alert("Gagal mengirim data keuangan.");
                 btn.innerText = "💾 Catat Transaksi Keuangan"; btn.disabled = false;
             });
         }
 
         function submitLomba() {
-            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return alert("Isi SCRIPT_URL terlebih dahulu di baris atas kode script.");
+            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return alert("Isi SCRIPT_URL terlebih dahulu.");
             const btn = document.getElementById('btn-submit-lomba');
             btn.innerText = "⏳ Mendaftarkan..."; btn.disabled = true;
 
@@ -209,14 +208,13 @@
         }
 
         function submitGaleri() {
-            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return alert("Isi SCRIPT_URL terlebih dahulu di baris atas kode script.");
+            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return alert("Isi SCRIPT_URL terlebih dahulu.");
             const btn = document.getElementById('btn-submit-galeri');
             btn.innerText = "⏳ Menyematkan..."; btn.disabled = true;
 
             const nama = document.getElementById('galeri-nama').value;
             const ket = document.getElementById('galeri-ket').value;
             
-            // Ambil semua isi input link, bersihkan space, dan gabungkan dengan pemisah koma
             const inputsLink = document.querySelectorAll('.galeri-link-item');
             const arrayLink = [];
             inputsLink.forEach(input => {
@@ -234,7 +232,6 @@
                 alert("Dokumentasi galeri berhasil disematkan!");
                 document.getElementById('form-galeri').reset();
                 
-                // Reset kembali kolom input link menjadi hanya satu buah
                 document.getElementById('wrapper-input-link').innerHTML = `
                     <input type="url" class="galeri-link-item w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-zinc-900 bg-zinc-50 text-sm mb-2" placeholder="https://link-foto-atau-video-1..." required>
                 `;
