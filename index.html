@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papan Informasi PHBN HUT RI - Kecamatan Bolano</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @media print {
+            body { background: white; color: black; }
+            .no-print { display: none !important; }
+            .print-block { display: block !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 pb-12">
+
+    <header class="bg-gradient-to-r from-red-700 to-red-600 text-white shadow-md no-print">
+        <div class="container mx-auto px-4 py-8 text-center relative">
+            <span class="bg-red-800/60 text-yellow-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Papan Informasi Publik</span>
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-wide mt-2">TRANSPARANSI DATA PHBN HUT RI</h1>
+            <p class="text-xl font-medium mt-1 text-red-100">Kecamatan Bolano - HUT Kemerdekaan RI</p>
+            <div class="text-xs text-red-200 mt-2 italic flex items-center justify-center gap-1">
+                <span class="w-2 h-2 bg-green-400 rounded-full animate-ping"></span> 
+                Sistem Terhubung Cloud (Pembaruan Otomatis Tiap 60 Detik)
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 mt-8">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-xs flex flex-col justify-between">
+                <span class="text-xs font-bold text-emerald-700 tracking-wider uppercase">Total Pendapatan (Pemasukan)</span>
+                <span id="txt-total-pendapatan" class="text-2xl font-black text-emerald-600 mt-2">Rp 0</span>
+            </div>
+            <div class="bg-rose-50 p-6 rounded-xl border border-rose-200 shadow-xs flex flex-col justify-between">
+                <span class="text-xs font-bold text-rose-700 tracking-wider uppercase">Total Pengeluaran (Belanja)</span>
+                <span id="txt-total-pengeluaran" class="text-2xl font-black text-rose-600 mt-2">Rp 0</span>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-xs flex flex-col justify-between">
+                <span class="text-xs font-bold text-blue-700 tracking-wider uppercase">Sisa Saldo Kas Aktual</span>
+                <span id="txt-sisa-saldo" class="text-2xl font-black text-blue-600 mt-2">Rp 0</span>
+            </div>
+        </div>
+
+        <div class="flex space-x-2 border-b border-slate-200 mb-6 no-print overflow-x-auto">
+            <button onclick="switchTab('keuangan')" id="btn-tab-keuangan" class="px-5 py-2.5 font-bold text-sm rounded-t-xl bg-red-600 text-white min-w-[140px] cursor-pointer transition">📊 Transparansi Kas</button>
+            <button onclick="switchTab('lomba')" id="btn-tab-lomba" class="px-5 py-2.5 font-bold text-sm rounded-t-xl bg-slate-200 text-slate-700 hover:bg-slate-300 min-w-[140px] cursor-pointer transition">🏆 Daftar Peserta Lomba</button>
+            <button onclick="switchTab('galeri')" id="btn-tab-galeri" class="px-5 py-2.5 font-bold text-sm rounded-t-xl bg-slate-200 text-slate-700 hover:bg-slate-300 min-w-[140px] cursor-pointer transition">🖼️ Dokumentasi Kegiatan</button>
+        </div>
+
+        <div id="tab-keuangan" class="tab-content bg-white p-6 rounded-xl shadow-xs border border-slate-100">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4 border-b pb-4">
+                <div>
+                    <h3 class="text-xl font-extrabold text-slate-800">Buku Kas Umum Transparansi Keuangan</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Pembaruan otomatis dari sistem keuangan panitia PHBN</p>
+                </div>
+                <button onclick="window.print()" class="no-print bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center transition cursor-pointer shadow-xs">🖨️ Cetak Laporan</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-slate-200">
+                    <thead>
+                        <tr class="bg-slate-100 text-left text-xs font-bold uppercase text-slate-700 tracking-wider">
+                            <th class="border border-slate-200 p-3 w-12 text-center">No</th>
+                            <th class="border border-slate-200 p-3">Kategori</th>
+                            <th class="border border-slate-200 p-3">Item Kegiatan</th>
+                            <th class="border border-slate-200 p-3">Sub Rincian Anggaran</th>
+                            <th class="border border-slate-200 p-3 text-right">Pendapatan</th>
+                            <th class="border border-slate-200 p-3 text-right">Pengeluaran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-keuangan-body" class="text-sm text-slate-700">
+                        <tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Memuat data papan informasi...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-lomba" class="tab-content hidden bg-white p-6 rounded-xl shadow-xs border border-slate-100">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4 border-b pb-4">
+                <div>
+                    <h3 class="text-xl font-extrabold text-slate-800">Daftar Resmi Peserta & Nomor Urut Lomba</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar peserta yang terverifikasi mengikuti perlombaan</p>
+                </div>
+                <button onclick="window.print()" class="no-print bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-xs flex items-center transition cursor-pointer shadow-xs">🖨️ Cetak Daftar</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-slate-200">
+                    <thead>
+                        <tr class="bg-slate-100 text-left text-xs font-bold uppercase text-slate-700 tracking-wider">
+                            <th class="border border-slate-200 p-3 w-24 text-center">No. Urut</th>
+                            <th class="border border-slate-200 p-3">Cabang Perlombaan</th>
+                            <th class="border border-slate-200 p-3">Nama Peserta / Nama Tim</th>
+                            <th class="border border-slate-200 p-3">Asal Kontingen / Instansi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-lomba-body" class="text-sm text-slate-700">
+                        <tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Memuat data perlombaan...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-galeri" class="tab-content hidden bg-white p-6 rounded-xl shadow-xs border border-slate-100">
+            <div class="mb-4 border-b pb-4">
+                <h3 class="text-xl font-extrabold text-slate-800">Galeri Liputan Dokumentasi Dokumenter</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Klik tautan di bawah agenda untuk melihat folder foto atau tayangan video kegiatan</p>
+            </div>
+            <div id="galeri-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-slate-400 italic text-sm col-span-3 text-center py-6">Memuat galeri dokumentasi...</p>
+            </div>
+        </div>
+
+        <div class="hidden print-block mt-12">
+            <div class="flex justify-between text-center mx-12">
+                <div class="w-52">
+                    <p class="mb-20 text-sm font-medium">Mengetahui,<br><b>Ketua Panitia PHBN Bolano</b></p>
+                    <div class="border-b border-black w-full"></div>
+                </div>
+                <div class="w-52">
+                    <p class="mb-20 text-sm font-medium">Bolano, Juli 2026<br><b>Bendahara PHBN</b></p>
+                    <div class="border-b border-black w-full"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ⚠️ MASUKKAN LINK SCRIPT WEB APP /exec ANDA DI SINI!
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzab3wDzju44r1z_wgqyG3HxsNew04ygG7d4IeIlsl59O3cQRtwJoU350_lKmLZ_8S6/exec";
+
+        let dataKeuangan = []; let dataLomba = []; let dataGaleri = [];
+
+        function formatRupiah(angka) {
+            return 'Rp ' + parseInt(angka || 0).toLocaleString('id-ID');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.querySelectorAll('button[id^="btn-tab-"]').forEach(btn => {
+                btn.classList.remove('bg-red-600', 'text-white');
+                btn.classList.add('bg-slate-200', 'text-slate-700');
+            });
+            document.getElementById(`btn-tab-${tabName}`).classList.remove('bg-slate-200', 'text-slate-700');
+            document.getElementById(`btn-tab-${tabName}`).classList.add('bg-red-600', 'text-white');
+        }
+
+        function loadAllData() {
+            if (SCRIPT_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI" || SCRIPT_URL.trim() === "") return;
+
+            fetch(`${SCRIPT_URL}?action=read&target=Keuangan`)
+                .then(res => res.json())
+                .then(res => { if (res.status === "success") { dataKeuangan = res.data; renderKeuangan(); } })
+                .catch(err => { console.error(err); renderKeuangan(); });
+
+            fetch(`${SCRIPT_URL}?action=read&target=Lomba`)
+                .then(res => res.json())
+                .then(res => { if (res.status === "success") { dataLomba = res.data; renderLomba(); } })
+                .catch(err => console.error(err));
+
+            fetch(`${SCRIPT_URL}?action=read&target=Galeri`)
+                .then(res => res.json())
+                .then(res => { if (res.status === "success") { dataGaleri = res.data; renderGaleri(); } })
+                .catch(err => console.error(err));
+        }
+
+        function renderKeuangan() {
+            const tbody = document.getElementById('tabel-keuangan-body');
+            tbody.innerHTML = '';
+            let totalPendapatan = 0; let totalPengeluaran = 0;
+
+            if(!dataKeuangan || dataKeuangan.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Belum ada data transaksi keuangan masuk.</td></tr>`;
+            } else {
+                dataKeuangan.forEach((item, index) => {
+                    let jumlah = Number(item.jumlah || 0);
+                    let p_masuk = item.jenis === 'Pendapatan' ? formatRupiah(jumlah) : '-';
+                    let p_keluar = item.jenis === 'Pengeluaran' ? formatRupiah(jumlah) : '-';
+
+                    if(item.jenis === 'Pendapatan') totalPendapatan += jumlah;
+                    if(item.jenis === 'Pengeluaran') totalPengeluaran += jumlah;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 border-b border-slate-100">
+                            <td class="p-3 border-r border-slate-100 text-center">${index + 1}</td>
+                            <td class="p-3 font-bold ${item.jenis === 'Pendapatan' ? 'text-emerald-600' : 'text-rose-600'}">${item.jenis}</td>
+                            <td class="p-3 font-semibold text-slate-900">${item.item_kegiatan || '-'}</td>
+                            <td class="p-3 text-slate-600">${item.sub_rincian || '-'}</td>
+                            <td class="p-3 text-right font-medium text-emerald-600">${p_masuk}</td>
+                            <td class="p-3 text-right font-medium text-rose-600">${p_keluar}</td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('txt-total-pendapatan').innerText = formatRupiah(totalPendapatan);
+            document.getElementById('txt-total-pengeluaran').innerText = formatRupiah(totalPengeluaran);
+            document.getElementById('txt-sisa-saldo').innerText = formatRupiah(totalPendapatan - totalPengeluaran);
+        }
+
+        function renderLomba() {
+            const tbody = document.getElementById('tabel-lomba-body');
+            tbody.innerHTML = '';
+            if(!dataLomba || dataLomba.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">Belum ada peserta terdaftar.</td></tr>`;
+                return;
+            }
+            dataLomba.forEach((item) => {
+                let nomor = item.nomor_urut || item.nomor || 0;
+                let jenis = item.jenis_lomba || item.jenis || '-';
+                let nama = item.nama_peserta || item.nama || '-';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-3 text-center font-bold text-red-600 bg-red-50/50">${String(nomor).padStart(3, '0')}</td>
+                        <td class="p-3 font-semibold text-slate-800">${jenis}</td>
+                        <td class="p-3 font-bold text-slate-900">${nama}</td>
+                        <td class="p-3 text-slate-500">${item.asal || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderGaleri() {
+            const container = document.getElementById('galeri-container');
+            container.innerHTML = '';
+            if(!dataGaleri || dataGaleri.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 italic text-sm col-span-3 text-center py-6">Belum ada dokumentasi dipublikasikan.</p>`;
+                return;
+            }
+            dataGaleri.forEach(item => {
+                let agenda = item.nama_agenda_kegiatan || item.nama || '-';
+                let ket = item.keterangan_tambahan || item.ket || '-';
+                let url = item.link_url_(_google_drive_/_youtube_) || item.link || '#';
+                container.innerHTML += `
+                    <div class="border border-slate-200 p-5 rounded-2xl bg-slate-50 flex flex-col justify-between shadow-xs hover:border-red-300 transition">
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-base">${agenda}</h4>
+                            <p class="text-xs text-slate-500 mt-1">${ket}</p>
+                        </div>
+                        <a href="${url}" target="_blank" class="mt-4 block text-center bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs cursor-pointer">🔗 Buka Dokumentasi Resmi</a>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = function() {
+            loadAllData();
+            // Menjalankan penarikan data berkala otomatis setiap 60000 milidetik (1 menit)
+            setInterval(loadAllData, 60000);
+        };
+    </script>
+</body>
+</html>
