@@ -34,16 +34,19 @@
     <div class="bg-yellow-400 border-b border-yellow-500 shadow-sm no-print">
         <div class="container mx-auto max-w-6xl flex items-center">
             <div class="bg-red-600 text-white text-xs font-black uppercase px-4 py-2 flex items-center gap-1.5 z-10 shadow-md whitespace-nowrap">
-                <span>📢</span> INFO TERBARU:
+                <span>📢</span> LIVE MONITOR:
             </div>
             <marquee class="font-bold text-xs md:text-sm text-red-900 py-1.5" behavior="scroll" direction="left" scrollamount="5">
-                Dirgahayu Republik Indonesia! 🎉 Semua Hasil Penilaian Juri Bersifat Transparan dan Dapat Dipantau Langsung Secara Real-Time. 🇮🇩
+                Dirgahayu Republik Indonesia! 🎉 Papan informasi memperbarui data otomatis secara real-time setiap 30 detik untuk menjaga akuntabilitas. 🇮🇩
             </marquee>
         </div>
     </div>
 
     <main class="container mx-auto px-4 mt-6 max-w-6xl no-print">
-        <!-- TAB NAVIGATION -->
+        <div id="loading-indicator" class="hidden text-center py-2 bg-zinc-800 text-white font-mono text-xs rounded-lg mb-4 animate-pulse">
+            ⏳ Sinkronisasi Otomatis Cloud Database Spreadsheet...
+        </div>
+
         <div class="flex border-b border-slate-200 bg-white p-1 rounded-2xl shadow-sm overflow-x-auto gap-1">
             <button onclick="switchTab('keuangan')" id="tab-keuangan" class="flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 bg-red-600 text-white shadow-sm">💰 Kas Keuangan</button>
             <button onclick="switchTab('lomba')" id="tab-lomba" class="flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100/60">🏆 Pendaftar Lomba</button>
@@ -51,7 +54,6 @@
             <button onclick="switchTab('live-score')" id="tab-live-score" class="flex-1 min-w-[130px] py-3 px-4 font-bold text-sm text-center rounded-xl transition duration-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100/60">⚡ Live Score Nilai</button>
         </div>
 
-        <!-- CONTENT KEUANGAN -->
         <section id="content-keuangan" class="tab-content mt-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center justify-between">
@@ -71,38 +73,40 @@
             <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
                     <div><h2 class="font-extrabold text-slate-800 text-base">📋 Jurnal Transaksi Keuangan</h2></div>
-                    <button data-refresh="Keuangan" class="bg-white border border-slate-300 font-bold text-xs py-2 px-3.5 rounded-xl">🔄 Segarkan</button>
+                    <button onclick="loadSemuaData()" class="bg-white hover:bg-slate-100 border border-slate-300 font-bold text-xs py-2 px-4 rounded-xl cursor-pointer transition">🔄 Segarkan Kas</button>
                 </div>
                 <div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[700px]"><tbody id="keuangan-container"></tbody></table></div>
             </div>
         </section>
 
-        <!-- CONTENT LOMBA REGESTRASI -->
         <section id="content-lomba" class="tab-content mt-6 hidden">
             <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
                     <div><h2 class="font-extrabold text-slate-800 text-base">🏆 Daftar Urut Peserta Lomba</h2></div>
-                    <button data-refresh="Lomba" class="bg-white border border-slate-300 font-bold text-xs py-2 px-3.5 rounded-xl">🔄 Segarkan</button>
+                    <button onclick="loadSemuaData()" class="bg-white hover:bg-slate-100 border border-slate-300 font-bold text-xs py-2 px-4 rounded-xl cursor-pointer transition">🔄 Segarkan Lomba</button>
                 </div>
                 <div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><tbody id="lomba-container"></tbody></table></div>
             </div>
         </section>
 
-        <!-- CONTENT GALERI -->
         <section id="content-galeri" class="tab-content mt-6 hidden">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm">
+                <h2 class="font-extrabold text-slate-800 text-base">🖼️ Galeri Kegiatan & Dokumentasi Media</h2>
+                <button onclick="loadSemuaData()" class="bg-white hover:bg-slate-100 border border-slate-300 font-bold text-xs py-2 px-4 rounded-xl cursor-pointer transition">🔄 Segarkan Galeri</button>
+            </div>
             <div id="galeri-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5"></div>
         </section>
 
-        <!-- CONTENT LIVE SCORE LOMBA -->
         <section id="content-live-score" class="tab-content mt-6 hidden">
             <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
-                <div class="mb-4">
-                    <label class="text-sm font-bold text-gray-700 block mb-1">Pilih Cabang Perlombaan:</label>
-                    <select id="dash-contest-select" onchange="renderDashboardSkor()" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 font-medium"></select>
+                <div class="mb-4 flex flex-col sm:flex-row gap-3 items-end justify-between">
+                    <div class="w-full">
+                        <label class="text-sm font-bold text-gray-700 block mb-1">Pilih Cabang Perlombaan:</label>
+                        <select id="dash-contest-select" onchange="renderDashboardSkor()" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 font-medium"></select>
+                    </div>
+                    <button onclick="loadSemuaData()" class="bg-white hover:bg-slate-100 border border-slate-300 font-bold text-xs py-3 px-5 rounded-xl cursor-pointer transition whitespace-nowrap">🔄 Segarkan Nilai</button>
                 </div>
-                <div id="dashboard-results-area">
-                    <!-- Hasil Olah Podium dan Ranking Table dimuat dinamis -->
-                </div>
+                <div id="dashboard-results-area"></div>
             </div>
         </section>
     </main>
@@ -117,6 +121,8 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSemuaData();
+            // BACKGROUND AUTO RELOAD SETIAP 30 DETIK (30000 ms) AGAR SINKRONISASI TERUS BERJALAN DAN LAYAR LAYAR TETAP AKTIF
+            setInterval(loadSemuaData, 30000);
         });
 
         function switchTab(tabName) {
@@ -130,15 +136,28 @@
         }
 
         function loadSemuaData() {
-            fetch(`${SCRIPT_URL}?action=read&target=Keuangan`).then(r=>r.json()).then(r=>{if(r.status==="success") renderKeuangan(r.data);});
-            fetch(`${SCRIPT_URL}?action=read&target=Lomba`).then(r=>r.json()).then(r=>{if(r.status==="success") renderLomba(r.data);});
-            fetch(`${SCRIPT_URL}?action=read&target=Galeri`).then(r=>r.json()).then(r=>{if(r.status==="success") renderGaleri(r.data);});
-            fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`).then(r=>r.json()).then(r=>{
-                if(r.status==="success") {
-                    cacheData.Contests = r.contests;
-                    cacheData.Scores = r.allData;
+            const loader = document.getElementById('loading-indicator');
+            if (loader) loader.classList.remove('hidden');
+
+            Promise.all([
+                fetch(`${SCRIPT_URL}?action=read&target=Keuangan`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=read&target=Lomba`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=read&target=Galeri`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`).then(r => r.json())
+            ])
+            .then(([resK, resL, resG, resLomba]) => {
+                if(resK.status === "success") renderKeuangan(resK.data);
+                if(resL.status === "success") renderLomba(resL.data);
+                if(resG.status === "success") renderGaleri(resG.data);
+                if(resLomba.status === "success") {
+                    cacheData.Contests = resLomba.contests;
+                    cacheData.Scores = resLomba.allData;
                     setupSelectLomba();
                 }
+            })
+            .catch(err => console.error("Koneksi Cloud Timeout, Menunggu Siklus Berikutnya...", err))
+            .finally(() => {
+                if (loader) loader.classList.add('hidden');
             });
         }
 
@@ -149,7 +168,7 @@
                 let nominal = Number(item.jumlah || 0);
                 let isMasuk = (item.jenis||'').toLowerCase().includes('masuk');
                 if(isMasuk) tMasuk += nominal; else tKeluar += nominal;
-                container.innerHTML += `<tr class="border-b p-3 text-sm"><td>${idx+1}</td><td><b>${item.item_kegiatan || ''}</b><br><span class="text-xs text-gray-400">${item.sub_rincian||''}</span></td><td class="text-right ${isMasuk?'text-emerald-600':'text-rose-600'}">Rp ${nominal.toLocaleString('id-ID')}</td></tr>`;
+                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td>${idx+1}</td><td><b>${item.item_kegiatan || ''}</b><br><span class="text-xs text-gray-400">${item.sub_rincian||''}</span></td><td class="text-right ${isMasuk?'text-emerald-600':'text-rose-600'}">Rp ${nominal.toLocaleString('id-ID')}</td></tr>`;
             });
             document.getElementById('total-masuk').innerText = `Rp ${tMasuk.toLocaleString('id-ID')}`;
             document.getElementById('total-keluar').innerText = `Rp ${tKeluar.toLocaleString('id-ID')}`;
@@ -159,20 +178,75 @@
         function renderLomba(data) {
             const container = document.getElementById('lomba-container'); container.innerHTML = '';
             data.forEach(item => {
-                container.innerHTML += `<tr class="border-b p-3 text-sm"><td><b>#${item.nomor}</b></td><td>${item.jenis}</td><td>${item.nama}</td><td>${item.asal}</td></tr>`;
+                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td><b>#${item.nomor}</b></td><td>${item.jenis}</td><td>${item.nama}</td><td>${item.asal}</td></tr>`;
             });
+        }
+
+        // PARSER PENERJEMAH URL UNTUK PREVIEW MEDIA OTOMATIS (YOUTUBE & IMGBB)
+        function dapatkanMediaPreviewHTML(urlString) {
+            if(!urlString) return '';
+            const rawUrl = urlString.trim();
+
+            // DETEKSI DAN KONVERSI LINK YOUTUBE MENJADI IFRAME EMBED PLAYER
+            if (rawUrl.includes("youtube.com/watch") || rawUrl.includes("youtu.be/")) {
+                let videoId = "";
+                if(rawUrl.includes("youtube.com/watch")) {
+                    const urlParams = new URLSearchParams(new URL(rawUrl).search);
+                    videoId = urlParams.get('v');
+                } else {
+                    videoId = rawUrl.split("/").pop().split("?")[0];
+                }
+                if(videoId) {
+                    return `<div class="relative w-full aspect-video rounded-lg overflow-hidden border mt-2 shadow-xs">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+                    </div>`;
+                }
+            }
+
+            // DETEKSI DAN PENYUSUNAN LINK DIREK GAMBAR FOTO IMGBB
+            if (rawUrl.includes("ibb.co/")) {
+                let directImgUrl = rawUrl;
+                if(!rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+                    // Meremapping alamat landingpage ibb.co/xxx agar membaca file i.ibb.co/xxx.png bypass direct image
+                    directImgUrl = rawUrl.replace("ibb.co", "i.ibb.co") + ".png"; 
+                }
+                return `<div class="w-full aspect-video rounded-lg overflow-hidden border mt-2 bg-zinc-100 flex items-center justify-center shadow-xs">
+                    <img src="${directImgUrl}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Gambar+ImgBB';">
+                </div>`;
+            }
+
+            // FALLBACK GAMBAR EKSTERNAL LAINNYA
+            if(rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+                return `<img src="${rawUrl}" class="w-full aspect-video object-cover rounded-lg mt-2 border shadow-xs">`;
+            }
+
+            return `<span class="text-[11px] text-zinc-400 italic block mt-1">Tautan eksternal (Bukan preview media langsung)</span>`;
         }
 
         function renderGaleri(data) {
             const container = document.getElementById('galeri-container'); container.innerHTML = '';
             data.forEach(item => {
-                container.innerHTML += `<div class="bg-white border p-4 rounded-xl shadow-sm"><h4><b>${item.agenda}</b></h4><p class="text-xs text-gray-500">${item.keterangan||''}</p><a href="${item.link}" target="_blank" class="text-xs text-red-600 block mt-2 underline">Lihat Dokumentasi</a></div>`;
+                let previewMediaHTML = dapatkanMediaPreviewHTML(item.link);
+                container.innerHTML += `
+                <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
+                    <div>
+                        <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${item.agenda || 'Dokumentasi PHBN'}</h4>
+                        <p class="text-xs text-gray-500 mt-1">${item.keterangan || ''}</p>
+                        ${previewMediaHTML}
+                    </div>
+                    <a href="${item.link}" target="_blank" class="text-xs text-red-600 font-bold block mt-3 hover:underline text-right">Buka File Asli 🔗</a>
+                </div>`;
             });
         }
 
         function setupSelectLomba() {
             const select = document.getElementById('dash-contest-select');
+            const currentSelected = select.value;
+            
             select.innerHTML = cacheData.Contests.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            if(currentSelected && cacheData.Contests.some(c => c.name === currentSelected)) {
+                select.value = currentSelected;
+            }
             if(cacheData.Contests.length > 0) renderDashboardSkor();
         }
 
@@ -182,8 +256,8 @@
             const filteredScores = cacheData.Scores.filter(s => s.contest_name === contestName);
             const area = document.getElementById('dashboard-results-area');
 
-            if (!filteredScores.length) {
-                area.innerHTML = `<p class="text-center py-8 text-gray-400">Belum ada nilai yang dimasukkan oleh juri untuk lomba ini.</p>`;
+            if (!filteredScores.length || !targetContest) {
+                area.innerHTML = `<p class="text-center py-8 text-gray-400">Belum ada nilai terunggah dari ruang juri untuk cabang lomba ini.</p>`;
                 return;
             }
 
@@ -193,9 +267,9 @@
 
             const ranked = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
-            let htmlTable = `<table class="w-full mt-4 text-sm border"><thead class="bg-red-600 text-white"><tr><th class="p-2">Rank</th><th class="p-2 text-left">Nama Peserta</th><th class="p-2 text-right">Total Skor</th></tr></thead><tbody>`;
+            let htmlTable = `<table class="w-full mt-4 text-sm border"><thead class="bg-red-600 text-white"><tr><th class="p-2 w-16">Peringkat</th><th class="p-2 text-left">Nama Kontingen / Tim</th><th class="p-2 text-right w-32">Kalkulasi Skor</th></tr></thead><tbody>`;
             ranked.forEach((item, index) => {
-                htmlTable += `<tr class="border-b"><td class="p-2 text-center font-bold">${index+1}</td><td class="p-2">${item[0]}</td><td class="p-2 text-right font-bold">${item[1]} pts</td></tr>`;
+                htmlTable += `<tr class="border-b hover:bg-slate-50"><td class="p-2 text-center font-bold">${index+1}</td><td class="p-2 font-medium">${item[0]}</td><td class="p-2 text-right font-black text-red-600">${item[1]} pts</td></tr>`;
             });
             htmlTable += `</tbody></table>`;
             area.innerHTML = htmlTable;
