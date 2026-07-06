@@ -116,7 +116,6 @@
     </div>
 
     <script>
-        // PASTIKAN URL INI SESUAI DENGAN DEPLOYMENT TERBARU ANDA DI GOOGLE APPS SCRIPT
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYrV6pDt3LO9xyEgZXBTXaBs9uXWYr5dIpH38hl1pShJYK8Gbl_bgnLtIi447Tj4U6/exec";
         let cacheData = { Keuangan: [], Lomba: [], Galeri: [], Contests: [], Scores: [] };
 
@@ -135,7 +134,6 @@
             });
         }
 
-        // PERBAIKAN UTAMA: Menggunakan Promise.allSettled agar kegagalan satu sheet tidak merusak sheet lain
         function loadSemuaData() {
             const loader = document.getElementById('loading-indicator');
             if (loader) loader.classList.remove('hidden');
@@ -226,23 +224,41 @@
             return `<a href="${rawUrl}" target="_blank" class="text-[11px] text-red-500 font-semibold block mt-1 underline">Lihat Dokumen Eksternal 🔗</a>`;
         }
 
-        // PERBAIKAN UTAMA: Penyesuaian key objek properti dengan header Apps Script (tautan_dokumentasi)
+        // INTEGRASI BARU: Mendukung multi-foto dipisahkan dengan tanda koma ( , )
         function renderGaleri(data) {
-            const container = document.getElementById('galeri-container'); container.innerHTML = '';
+            const container = document.getElementById('galeri-container'); 
+            container.innerHTML = '';
+            
             data.forEach(item => {
-                let linkMedia = item.tautan_dokumentasi || item.link || item.links || '';
+                let linkMediaRaw = item.tautan_dokumentasi || item.link || item.links || '';
                 let namaAgenda = item.nama_agenda || item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
                 let ket = item.keterangan || item.deskripsi || '';
 
-                let previewMediaHTML = dapatkanMediaPreviewHTML(linkMedia);
+                // Pecah string link berdasarkan tanda koma, hilangkan spasi kosong, dan saring item yang tidak kosong
+                let daftarLink = linkMediaRaw.split(',').map(link => link.trim()).filter(link => link !== '');
+                
+                // Looping untuk merender setiap preview media
+                let previewMediaHTML = '';
+                daftarLink.forEach(link => {
+                    previewMediaHTML += dapatkanMediaPreviewHTML(link);
+                });
+
                 container.innerHTML += `
                 <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
                     <div>
                         <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${namaAgenda}</h4>
-                        <p class="text-xs text-gray-500 mt-1">${ket}</p>
-                        ${previewMediaHTML}
+                        <p class="text-xs text-gray-500 mt-1 mb-2">${ket}</p>
+                        <div class="grid grid-cols-1 gap-2">
+                            ${previewMediaHTML}
+                        </div>
                     </div>
-                    <a href="${linkMedia}" target="_blank" class="text-xs text-red-600 font-bold block mt-3 hover:underline text-right">Buka Tautan Asli 🔗</a>
+                    <div class="flex flex-wrap gap-2 justify-end mt-3 border-t border-slate-100 pt-2">
+                        ${daftarLink.map((link, idx) => `
+                            <a href="${link}" target="_blank" class="text-[11px] text-red-600 font-bold hover:underline">
+                                Link #${idx + 1} 🔗
+                            </a>
+                        `).join('')}
+                    </div>
                 </div>`;
             });
         }
