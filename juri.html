@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penilaian Lomba HUT RI - Juri Room</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="max-w-md mx-auto w-full bg-white min-h-screen shadow-md">
+        <header class="bg-red-600 py-6 text-white text-center">
+            <h1 class="text-lg font-bold uppercase">PHBN Kecamatan Bolano</h1>
+            <p class="text-xs opacity-90">Aplikasi Penilaian Lomba - Secure Juri Portal</p>
+        </header>
+
+        <div id="loading" class="p-8 text-center text-gray-500 font-medium">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-2"></div>
+            Menghubungkan ke Cloud...
+        </div>
+
+        <div id="main-content" class="hidden p-4">
+            <!-- PAGE 1: AUTH & ROLE ACCESS -->
+            <section id="page-roles">
+                <h2 class="text-center font-bold mb-4 text-gray-700">Akses Masuk Juri</h2>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Masukkan Token Rahasia Juri</label>
+                    <input id="auth-token" type="password" class="w-full border rounded-lg px-3 py-2 text-center font-mono tracking-widest text-lg" placeholder="******">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="pilihRoleJuri(1)" class="bg-red-600 text-white py-3 rounded-xl font-bold text-xs">Juri 1</button>
+                    <button onclick="pilihRoleJuri(2)" class="bg-red-600 text-white py-3 rounded-xl font-bold text-xs">Juri 2</button>
+                    <button onclick="pilihRoleJuri(3)" class="bg-red-600 text-white py-3 rounded-xl font-bold text-xs">Juri 3</button>
+                </div>
+            </section>
+
+            <!-- PAGE 2: INPUT SCORING AREA -->
+            <section id="page-scoring" class="hidden">
+                <button onclick="backToRoles()" class="text-sm text-red-600 font-bold mb-4 flex items-center">← Keluar / Kembali</button>
+                <div class="mb-4">
+                    <label class="text-sm font-bold text-gray-700 block mb-1">Pilih Lomba:</label>
+                    <select id="juri-contest-select" onchange="renderFormPenilaian()" class="w-full border rounded-lg px-3 py-2"></select>
+                </div>
+                <div id="scoring-area-wrapper"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "GANTI_DENGAN_URL_WEB_APP_DEPLOYMENT_ANDA";
+        let contests = [];
+        let currentJuriNum = null;
+        let inputedToken = "";
+
+        window.onload = function() {
+            fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`)
+            .then(res => res.json()).then(res => {
+                contests = res.contests;
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+            });
+        };
+
+        function pilihRoleJuri(num) {
+            const token = document.getElementById('auth-token').value.trim();
+            if(!token) return alert("Silakan masukkan Token Juri Anda!");
+            currentJuriNum = num;
+            inputedToken = token;
+
+            document.getElementById('page-roles').classList.add('hidden');
+            document.getElementById('page-scoring').classList.remove('hidden');
+
+            const select = document.getElementById('juri-contest-select');
+            select.innerHTML = contests.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            renderFormPenilaian();
+        }
+
+        function backToRoles() {
+            document.getElementById('page-scoring').classList.add('hidden');
+            document.getElementById('page-roles').classList.remove('hidden');
+        }
+
+        function renderFormPenilaian() {
+            const contestName = document.getElementById('juri-contest-select').value;
+            const contest = contests.find(c => c.name === contestName);
+            const wrapper = document.getElementById('scoring-area-wrapper');
+
+            let html = `<h3 class="font-bold text-base mb-4 text-gray-800">Lembar Penilaian Juri ${currentJuriNum}</h3>`;
+            
+            contest.participants.forEach((p, pIdx) => {
+                html += `<div class="bg-gray-50 border p-4 rounded-xl mb-4">
+                    <p class="font-bold text-gray-800 mb-2"><span class="bg-zinc-800 text-white text-xs px-1.5 py-0.5 rounded mr-2">${pIdx+1}</span>${p}</p>`;
+                
+                contest.criteria.forEach((c, cIdx) => {
+                    html += `<div class="flex items-center gap-2 mt-2">
+                        <label class="text-xs text-gray-600 flex-1">${c}</label>
+                        <input type="number" min="0" max="100" class="w-20 border rounded px-2 py-1 text-center font-bold score-input" data-participant="${p}" data-pnum="${pIdx+1}" data-criteria="${c}" placeholder="0-100">
+                    </div>`;
+                });
+                html += `</div>`;
+            });
+
+            html += `<button onclick="submitNilaiMassal('${contestName}')" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl mt-2 shadow-md">🚀 Kirim Semua Nilai Ke Cloud</button>`;
+            wrapper.innerHTML = html;
+        }
+
+        function submitNilaiMassal(contestName) {
+            const inputs = document.querySelectorAll('.score-input');
+            let barisNilai = [];
+            let isValid = true;
+
+            inputs.forEach(input => {
+                let scoreVal = parseInt(input.value);
+                if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) {
+                    isValid = false;
+                }
+                barisNilai.push({
+                    contest_name: contestName,
+                    participant_name: input.getAttribute('data-participant'),
+                    participant_number: parseInt(input.getAttribute('data-pnum')),
+                    judge_number: currentJuriNum,
+                    criteria_name: input.getAttribute('data-criteria'),
+                    score: scoreVal,
+                    submitted_at: new Date().toISOString()
+                });
+            });
+
+            if(!isValid) return alert("Mohon isi semua nilai angka secara valid antara Rentang 0 - 100!");
+
+            document.getElementById('loading').classList.remove('hidden');
+            
+            const payload = {
+                action: "input_nilai_juri",
+                contestName: contestName,
+                judge_number: currentJuriNum,
+                token: inputedToken,
+                barisNilai: barisNilai
+            };
+
+            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+            .then(res => res.json()).then(res => {
+                document.getElementById('loading').classList.add('hidden');
+                alert(res.message);
+                if(res.status === "success") {
+                    backToRoles();
+                    document.getElementById('auth-token').value = "";
+                }
+            }).catch(() => {
+                document.getElementById('loading').classList.add('hidden');
+                alert("Gagal mengirim nilai. Cek koneksi.");
+            });
+        }
+    </script>
+</body>
+</html>
