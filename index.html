@@ -116,12 +116,12 @@
     </div>
 
     <script>
+        // PASTIKAN URL INI SESUAI DENGAN DEPLOYMENT TERBARU ANDA DI GOOGLE APPS SCRIPT
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYrV6pDt3LO9xyEgZXBTXaBs9uXWYr5dIpH38hl1pShJYK8Gbl_bgnLtIi447Tj4U6/exec";
         let cacheData = { Keuangan: [], Lomba: [], Galeri: [], Contests: [], Scores: [] };
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSemuaData();
-            // BACKGROUND AUTO RELOAD SETIAP 30 DETIK (30000 ms) AGAR LAYAR PAPAN INFORMASI TIDAK MATI
             setInterval(loadSemuaData, 30000);
         });
 
@@ -135,23 +135,27 @@
             });
         }
 
+        // PERBAIKAN UTAMA: Menggunakan Promise.allSettled agar kegagalan satu sheet tidak merusak sheet lain
         function loadSemuaData() {
             const loader = document.getElementById('loading-indicator');
             if (loader) loader.classList.remove('hidden');
 
-            Promise.all([
+            Promise.allSettled([
                 fetch(`${SCRIPT_URL}?action=read&target=Keuangan`).then(r => r.json()),
                 fetch(`${SCRIPT_URL}?action=read&target=Lomba`).then(r => r.json()),
                 fetch(`${SCRIPT_URL}?action=read&target=Galeri`).then(r => r.json()),
                 fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`).then(r => r.json())
             ])
-            .then(([resK, resL, resG, resLomba]) => {
-                if(resK.status === "success") renderKeuangan(resK.data);
-                if(resL.status === "success") renderLomba(resL.data);
-                if(resG.status === "success") renderGaleri(resG.data);
-                if(resLomba.status === "success") {
-                    cacheData.Contests = resLomba.contests;
-                    cacheData.Scores = resLomba.allData;
+            .then((results) => {
+                const [resK, resL, resG, resLomba] = results;
+
+                if(resK.status === "fulfilled" && resK.value.status === "success") renderKeuangan(resK.value.data);
+                if(resL.status === "fulfilled" && resL.value.status === "success") renderLomba(resL.value.data);
+                if(resG.status === "fulfilled" && resG.value.status === "success") renderGaleri(resG.value.data);
+                
+                if(resLomba.status === "fulfilled" && resLomba.value.status === "success") {
+                    cacheData.Contests = resLomba.value.contests;
+                    cacheData.Scores = resLomba.value.allData;
                     setupSelectLomba();
                 }
             })
@@ -165,10 +169,10 @@
             const container = document.getElementById('keuangan-container');
             container.innerHTML = ''; let tMasuk = 0, tKeluar = 0;
             data.forEach((item, idx) => {
-                let nominal = Number(item.jumlah || 0);
+                let nominal = Number(item.jumlah || item.nominal || 0);
                 let isMasuk = (item.jenis||'').toLowerCase().includes('masuk');
                 if(isMasuk) tMasuk += nominal; else tKeluar += nominal;
-                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td>${idx+1}</td><td><b>${item.item_kegiatan || ''}</b><br><span class="text-xs text-gray-400">${item.sub_rincian||''}</span></td><td class="text-right ${isMasuk?'text-emerald-600':'text-rose-600'}">Rp ${nominal.toLocaleString('id-ID')}</td></tr>`;
+                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td>${idx+1}</td><td><b>${item.item_kegiatan || item.keterangan || ''}</b><br><span class="text-xs text-gray-400">${item.sub_rincian||''}</span></td><td class="text-right ${isMasuk?'text-emerald-600':'text-rose-600'}">Rp ${nominal.toLocaleString('id-ID')}</td></tr>`;
             });
             document.getElementById('total-masuk').innerText = `Rp ${tMasuk.toLocaleString('id-ID')}`;
             document.getElementById('total-keluar').innerText = `Rp ${tKeluar.toLocaleString('id-ID')}`;
@@ -178,16 +182,14 @@
         function renderLomba(data) {
             const container = document.getElementById('lomba-container'); container.innerHTML = '';
             data.forEach(item => {
-                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td><b>#${item.nomor}</b></td><td>${item.jenis}</td><td>${item.nama}</td><td>${item.asal}</td></tr>`;
+                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td><b>#${item.nomor || item.no || ''}</b></td><td>${item.jenis_lomba || item.jenis || ''}</td><td>${item.nama_pendaftar || item.nama || ''}</td><td>${item.asal_kontingen || item.asal || ''}</td></tr>`;
             });
         }
 
-        // PARSER PENERJEMAH URL UNTUK PREVIEW MEDIA OTOMATIS (YOUTUBE & IMGBB)
         function dapatkanMediaPreviewHTML(urlString) {
             if(!urlString) return '';
             const rawUrl = urlString.trim();
 
-            // 1. DETEKSI DAN KONVERSI LINK YOUTUBE MENJADI IFRAME EMBED PLAYER
             if (rawUrl.includes("youtube.com/watch") || rawUrl.includes("youtu.be/")) {
                 let videoId = "";
                 if(rawUrl.includes("youtube.com/watch")) {
@@ -205,10 +207,8 @@
                 }
             }
 
-            // 2. DETEKSI DAN PENYUSUNAN LINK DIREK GAMBAR FOTO IMGBB
             if (rawUrl.includes("ibb.co/")) {
                 let directImgUrl = rawUrl;
-                // Jika tautan mengarah ke halaman web imgbb biasa (bukan file langsung), konversi otomatis ke i.ibb.co
                 if(!rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                     let parts = rawUrl.split('/');
                     let idGambar = parts[parts.length - 1] || parts[parts.length - 2];
@@ -219,21 +219,20 @@
                 </div>`;
             }
 
-            // 3. FALLBACK MEDIA STANDARD JIKA LINK BERAKHIRAN EKSTENSI GAMBAR
             if(rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                 return `<img src="${rawUrl}" class="w-full aspect-video object-cover rounded-lg mt-2 border shadow-xs">`;
             }
 
-            return `<span class="text-[11px] text-zinc-400 italic block mt-1">Tautan Media Eksternal 🔗</span>`;
+            return `<a href="${rawUrl}" target="_blank" class="text-[11px] text-red-500 font-semibold block mt-1 underline">Lihat Dokumen Eksternal 🔗</a>`;
         }
 
+        // PERBAIKAN UTAMA: Penyesuaian key objek properti dengan header Apps Script (tautan_dokumentasi)
         function renderGaleri(data) {
             const container = document.getElementById('galeri-container'); container.innerHTML = '';
             data.forEach(item => {
-                // Perhatikan: Menyesuaikan pembacaan property objek sesuai database asli cloud
-                let linkMedia = item.link || item.links || '';
-                let namaAgenda = item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
-                let ket = item.keterangan || '';
+                let linkMedia = item.tautan_dokumentasi || item.link || item.links || '';
+                let namaAgenda = item.nama_agenda || item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
+                let ket = item.keterangan || item.deskripsi || '';
 
                 let previewMediaHTML = dapatkanMediaPreviewHTML(linkMedia);
                 container.innerHTML += `
