@@ -6,12 +6,18 @@
     <title>Papan Informasi PHBN HUT RI - Kecamatan Bolano</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <style>
+        /* Gaya khusus untuk pencetakan struk/kartu kertas thermal atau lembaran kecil */
         @media print {
             body { background: white; color: black; }
             .no-print { display: none !important; }
             .print-block { display: block !important; }
             body > :not(#print-area) { display: none !important; }
-            #print-area { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            #print-area { 
+                display: block !important; 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 10px !important; 
+            }
         }
     </style>
 </head>
@@ -85,7 +91,20 @@
                     <div><h2 class="font-extrabold text-slate-800 text-base">🏆 Daftar Urut Peserta Lomba</h2></div>
                     <button onclick="loadSemuaData()" class="bg-white hover:bg-slate-100 border border-slate-300 font-bold text-xs py-2 px-4 rounded-xl cursor-pointer transition">🔄 Segarkan Lomba</button>
                 </div>
-                <div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><tbody id="lomba-container"></tbody></table></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[650px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-bold border-b">
+                                <th class="p-3 w-16">No</th>
+                                <th class="p-3">Cabang Lomba</th>
+                                <th class="p-3">Nama Tim / Peserta</th>
+                                <th class="p-3">Asal Kontingen</th>
+                                <th class="p-3 text-center w-28">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lomba-container"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -111,8 +130,8 @@
         </section>
     </main>
 
-    <div id="print-area" class="hidden p-6 bg-white font-mono text-xs max-w-sm mx-auto border-2 border-dashed border-slate-400 rounded-lg">
-        <div id="print-content-box"></div>
+    <div id="print-area" class="hidden">
+        <div id="print-content-box" style="font-family: monospace; border: 2px dashed #000; padding: 15px; max-w: 320px; margin: 0 auto; text-align: center; color: #000; font-size: 13px;"></div>
     </div>
 
     <script>
@@ -177,11 +196,75 @@
             document.getElementById('saldo-akhir').innerText = `Rp ${(tMasuk - tKeluar).toLocaleString('id-ID')}`;
         }
 
+        // AKSI RENDERING DAN INJEKSI TOMBOL CETAK KARTU
         function renderLomba(data) {
             const container = document.getElementById('lomba-container'); container.innerHTML = '';
             data.forEach(item => {
-                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td><b>#${item.nomor || item.no || ''}</b></td><td>${item.jenis_lomba || item.jenis || ''}</td><td>${item.nama_pendaftar || item.nama || ''}</td><td>${item.asal_kontingen || item.asal || ''}</td></tr>`;
+                let nomor = item.nomor || item.no || '';
+                let jenis = item.jenis_lomba || item.jenis || '';
+                let nama = item.nama_pendaftar || item.nama || '';
+                let asal = item.asal_kontingen || item.asal || '';
+
+                // Escape tanda petik agar string aman dikirim ke fungsi javascript parameter
+                let paramNo = String(nomor).replace(/'/g, "\\'");
+                let paramJenis = String(jenis).replace(/'/g, "\\'");
+                let paramNama = String(nama).replace(/'/g, "\\'");
+                let paramAsal = String(asal).replace(/'/g, "\\'");
+
+                container.innerHTML += `
+                <tr class="border-b text-sm hover:bg-slate-50">
+                    <td class="p-3 font-bold">#${nomor}</td>
+                    <td class="p-3">${jenis}</td>
+                    <td class="p-3 font-medium">${nama}</td>
+                    <td class="p-3">${asal}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="aksiCetakKartu('${paramNo}', '${paramJenis}', '${paramNama}', '${paramAsal}')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white font-bold text-xs py-1.5 px-3 rounded-lg border border-red-200 transition cursor-pointer">
+                            🖨️ Cetak
+                        </button>
+                    </td>
+                </tr>`;
             });
+        }
+
+        // FUNGSI UTAMA: Pembuat Format Teks Cetakan Struk Kartu PHBN Bolano
+        function aksiCetakKartu(nomor, jenis, nama, asal) {
+            const box = document.getElementById('print-content-box');
+            
+            box.innerHTML = `
+                <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">PANITIA HARI BESAR NASIONAL</div>
+                <div style="font-weight: bold; font-size: 12px; margin-bottom: 5px; border-b: 1px dashed #000; padding-bottom: 5px;">HUT KEMERDEKAAN REPUBLIK INDONESIA</div>
+                <div style="font-weight: bold; font-size: 15px; margin: 10px 0; background-color: #000; color: #fff; padding: 3px; display: inline-block; width: 100%;">KARTU PESERTA</div>
+                
+                <table style="width: 100%; text-align: left; font-size: 13px; margin-top: 10px; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 90px; padding: 3px 0; vertical-align: top;">NO URUT</td>
+                        <td style="width: 10px; padding: 3px 0; vertical-align: top;">:</td>
+                        <td style="font-weight: bold; padding: 3px 0;">#${nomor}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px 0; vertical-align: top;">NAMA TIM</td>
+                        <td style="padding: 3px 0; vertical-align: top;">:</td>
+                        <td style="font-weight: bold; text-transform: uppercase; padding: 3px 0;">${nama}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px 0; vertical-align: top;">ASAL</td>
+                        <td style="padding: 3px 0; vertical-align: top;">:</td>
+                        <td style="padding: 3px 0;">${asal}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px 0; vertical-align: top;">CABANG LOMBA</td>
+                        <td style="padding: 3px 0; vertical-align: top;">:</td>
+                        <td style="font-style: italic; padding: 3px 0;">${jenis}</td>
+                    </tr>
+                </table>
+                
+                <div style="margin-top: 15px; border-t: 1px dashed #000; padding-top: 5px; font-size: 11px; font-style: italic;">
+                    *Harap dibawa dan ditunjukkan saat registrasi ulang di lokasi perlombaan.
+                </div>
+            `;
+
+            // Eksekusi print bawaan browser
+            window.print();
         }
 
         function dapatkanMediaPreviewHTML(urlString) {
@@ -224,7 +307,6 @@
             return `<a href="${rawUrl}" target="_blank" class="text-[11px] text-red-500 font-semibold block mt-1 underline">Lihat Dokumen Eksternal 🔗</a>`;
         }
 
-        // INTEGRASI BARU: Mendukung multi-foto dipisahkan dengan tanda koma ( , )
         function renderGaleri(data) {
             const container = document.getElementById('galeri-container'); 
             container.innerHTML = '';
@@ -234,10 +316,8 @@
                 let namaAgenda = item.nama_agenda || item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
                 let ket = item.keterangan || item.deskripsi || '';
 
-                // Pecah string link berdasarkan tanda koma, hilangkan spasi kosong, dan saring item yang tidak kosong
                 let daftarLink = linkMediaRaw.split(',').map(link => link.trim()).filter(link => link !== '');
                 
-                // Looping untuk merender setiap preview media
                 let previewMediaHTML = '';
                 daftarLink.forEach(link => {
                     previewMediaHTML += dapatkanMediaPreviewHTML(link);
