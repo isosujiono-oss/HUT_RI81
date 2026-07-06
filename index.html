@@ -121,7 +121,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSemuaData();
-            // BACKGROUND AUTO RELOAD SETIAP 30 DETIK (30000 ms) AGAR SINKRONISASI TERUS BERJALAN DAN LAYAR LAYAR TETAP AKTIF
+            // BACKGROUND AUTO RELOAD SETIAP 30 DETIK (30000 ms) AGAR LAYAR PAPAN INFORMASI TIDAK MATI
             setInterval(loadSemuaData, 30000);
         });
 
@@ -155,7 +155,7 @@
                     setupSelectLomba();
                 }
             })
-            .catch(err => console.error("Koneksi Cloud Timeout, Menunggu Siklus Berikutnya...", err))
+            .catch(err => console.error("Koneksi gagal saat sinkronisasi:", err))
             .finally(() => {
                 if (loader) loader.classList.add('hidden');
             });
@@ -187,12 +187,14 @@
             if(!urlString) return '';
             const rawUrl = urlString.trim();
 
-            // DETEKSI DAN KONVERSI LINK YOUTUBE MENJADI IFRAME EMBED PLAYER
+            // 1. DETEKSI DAN KONVERSI LINK YOUTUBE MENJADI IFRAME EMBED PLAYER
             if (rawUrl.includes("youtube.com/watch") || rawUrl.includes("youtu.be/")) {
                 let videoId = "";
                 if(rawUrl.includes("youtube.com/watch")) {
-                    const urlParams = new URLSearchParams(new URL(rawUrl).search);
-                    videoId = urlParams.get('v');
+                    try {
+                        const urlParams = new URLSearchParams(new URL(rawUrl).search);
+                        videoId = urlParams.get('v');
+                    } catch(e) { }
                 } else {
                     videoId = rawUrl.split("/").pop().split("?")[0];
                 }
@@ -203,38 +205,45 @@
                 }
             }
 
-            // DETEKSI DAN PENYUSUNAN LINK DIREK GAMBAR FOTO IMGBB
+            // 2. DETEKSI DAN PENYUSUNAN LINK DIREK GAMBAR FOTO IMGBB
             if (rawUrl.includes("ibb.co/")) {
                 let directImgUrl = rawUrl;
+                // Jika tautan mengarah ke halaman web imgbb biasa (bukan file langsung), konversi otomatis ke i.ibb.co
                 if(!rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-                    // Meremapping alamat landingpage ibb.co/xxx agar membaca file i.ibb.co/xxx.png bypass direct image
-                    directImgUrl = rawUrl.replace("ibb.co", "i.ibb.co") + ".png"; 
+                    let parts = rawUrl.split('/');
+                    let idGambar = parts[parts.length - 1] || parts[parts.length - 2];
+                    directImgUrl = `https://i.ibb.co/${idGambar}.png`; 
                 }
                 return `<div class="w-full aspect-video rounded-lg overflow-hidden border mt-2 bg-zinc-100 flex items-center justify-center shadow-xs">
-                    <img src="${directImgUrl}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Gambar+ImgBB';">
+                    <img src="${directImgUrl}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Gambar+Galeri';">
                 </div>`;
             }
 
-            // FALLBACK GAMBAR EKSTERNAL LAINNYA
+            // 3. FALLBACK MEDIA STANDARD JIKA LINK BERAKHIRAN EKSTENSI GAMBAR
             if(rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                 return `<img src="${rawUrl}" class="w-full aspect-video object-cover rounded-lg mt-2 border shadow-xs">`;
             }
 
-            return `<span class="text-[11px] text-zinc-400 italic block mt-1">Tautan eksternal (Bukan preview media langsung)</span>`;
+            return `<span class="text-[11px] text-zinc-400 italic block mt-1">Tautan Media Eksternal 🔗</span>`;
         }
 
         function renderGaleri(data) {
             const container = document.getElementById('galeri-container'); container.innerHTML = '';
             data.forEach(item => {
-                let previewMediaHTML = dapatkanMediaPreviewHTML(item.link);
+                // Perhatikan: Menyesuaikan pembacaan property objek sesuai database asli cloud
+                let linkMedia = item.link || item.links || '';
+                let namaAgenda = item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
+                let ket = item.keterangan || '';
+
+                let previewMediaHTML = dapatkanMediaPreviewHTML(linkMedia);
                 container.innerHTML += `
                 <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
                     <div>
-                        <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${item.agenda || 'Dokumentasi PHBN'}</h4>
-                        <p class="text-xs text-gray-500 mt-1">${item.keterangan || ''}</p>
+                        <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${namaAgenda}</h4>
+                        <p class="text-xs text-gray-500 mt-1">${ket}</p>
                         ${previewMediaHTML}
                     </div>
-                    <a href="${item.link}" target="_blank" class="text-xs text-red-600 font-bold block mt-3 hover:underline text-right">Buka File Asli 🔗</a>
+                    <a href="${linkMedia}" target="_blank" class="text-xs text-red-600 font-bold block mt-3 hover:underline text-right">Buka Tautan Asli 🔗</a>
                 </div>`;
             });
         }
