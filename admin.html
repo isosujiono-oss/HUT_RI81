@@ -108,6 +108,7 @@
             <form onsubmit="submitSetupLomba(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Pilih Lomba (Otomatis Sinkron Terdaftar)</label>
+                    <!-- INTEGRASI FIX: Menggunakan loadKriteriaLombaTerpilih sesuai deklarasi JavaScript -->
                     <select id="setup-contest-name" onchange="loadKriteriaLombaTerpilih()" class="w-full border rounded-lg p-2.5 text-sm font-semibold bg-zinc-50 focus:outline-zinc-500" required>
                         <option value="">Memuat data dari cloud...</option>
                     </select>
@@ -163,7 +164,7 @@
             });
         }
 
-        // PERBAIKAN: Pembetulan nama fungsi agar selaras dengan pemanggilan DOM onchange
+        // INTEGRASI FIX: Penyelarasan nama fungsi dari Terpilled menjadi Terpilih
         function loadKriteriaLombaTerpilih() {
             const chosenName = document.getElementById('setup-contest-name').value;
             const targetContest = localContestsData.find(c => c.name === chosenName);
@@ -209,7 +210,7 @@
             }).catch(() => { alert("Koneksi gagal."); btn.innerText = originalText; btn.disabled = false; });
         }
 
-        // PERBAIKAN: Memastikan pemrosesan array peserta mengambil string riil dari DOM input hidden
+        // INTEGRASI FIX: Mengambil data string peserta riil dari elemen input hidden agar tidak terkirim kosong []
         function submitSetupLomba(e) {
             e.preventDefault();
             const chosenName = document.getElementById('setup-contest-name').value;
