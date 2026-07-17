@@ -6,18 +6,12 @@
     <title>Papan Informasi PHBN HUT RI - Kecamatan Bolano</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <style>
-        /* Gaya khusus untuk pencetakan struk/kartu kertas thermal atau lembaran kecil */
         @media print {
             body { background: white; color: black; }
             .no-print { display: none !important; }
             .print-block { display: block !important; }
             body > :not(#print-area) { display: none !important; }
-            #print-area { 
-                display: block !important; 
-                width: 100% !important; 
-                margin: 0 !important; 
-                padding: 10px !important; 
-            }
+            #print-area { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
         }
     </style>
 </head>
@@ -43,7 +37,7 @@
                 <span>📢</span> LIVE MONITOR:
             </div>
             <marquee class="font-bold text-xs md:text-sm text-red-900 py-1.5" behavior="scroll" direction="left" scrollamount="5">
-                Dirgahayu Republik Indonesia! 🎉 Papan informasi memperbarui data otomatis secara Real-Time setiap 30 detik untuk menjaga akuntabilitas 🎉 Silahkan cetak kartu peserta lomba pada fitur pendaftaran lomba 🎉 Peroleh hasil lomba akan tampil secara Real-Time 🎉 Sebagai bentuk transparansi dan akuntabilitas, pelaporan Keuangan kami tampilkan secara Real-Time, jika ada ketidaksesuaian silahkan hubungi Bendahara PHBN 🎉 Tema HUT Kemerdekaan RI 81 "“Indonesia Berdaulat, Adil, dan Makmur”.🇮🇩
+                Dirgahayu Republik Indonesia! 🎉 Papan informasi memperbarui data otomatis secara real-time setiap 30 detik untuk menjaga akuntabilitas. 🇮🇩
             </marquee>
         </div>
     </div>
@@ -91,20 +85,7 @@
                     <div><h2 class="font-extrabold text-slate-800 text-base">🏆 Daftar Urut Peserta Lomba</h2></div>
                     <button onclick="loadSemuaData()" class="bg-white hover:bg-slate-100 border border-slate-300 font-bold text-xs py-2 px-4 rounded-xl cursor-pointer transition">🔄 Segarkan Lomba</button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[650px]">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-bold border-b">
-                                <th class="p-3 w-16">No</th>
-                                <th class="p-3">Cabang Lomba</th>
-                                <th class="p-3">Nama Tim / Peserta</th>
-                                <th class="p-3">Asal Kontingen</th>
-                                <th class="p-3 text-center w-28">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lomba-container"></tbody>
-                    </table>
-                </div>
+                <div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[600px]"><tbody id="lomba-container"></tbody></table></div>
             </div>
         </section>
 
@@ -130,8 +111,8 @@
         </section>
     </main>
 
-    <div id="print-area" class="hidden">
-        <div id="print-content-box" style="font-family: monospace; border: 2px dashed #000; padding: 15px; max-w: 320px; margin: 0 auto; text-align: center; color: #000; font-size: 13px;"></div>
+    <div id="print-area" class="hidden p-6 bg-white font-mono text-xs max-w-sm mx-auto border-2 border-dashed border-slate-400 rounded-lg">
+        <div id="print-content-box"></div>
     </div>
 
     <script>
@@ -140,6 +121,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSemuaData();
+            // BACKGROUND AUTO RELOAD SETIAP 30 DETIK (30000 ms) AGAR LAYAR PAPAN INFORMASI TIDAK MATI
             setInterval(loadSemuaData, 30000);
         });
 
@@ -157,22 +139,19 @@
             const loader = document.getElementById('loading-indicator');
             if (loader) loader.classList.remove('hidden');
 
-            Promise.allSettled([
+            Promise.all([
                 fetch(`${SCRIPT_URL}?action=read&target=Keuangan`).then(r => r.json()),
                 fetch(`${SCRIPT_URL}?action=read&target=Lomba`).then(r => r.json()),
                 fetch(`${SCRIPT_URL}?action=read&target=Galeri`).then(r => r.json()),
                 fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`).then(r => r.json())
             ])
-            .then((results) => {
-                const [resK, resL, resG, resLomba] = results;
-
-                if(resK.status === "fulfilled" && resK.value.status === "success") renderKeuangan(resK.value.data);
-                if(resL.status === "fulfilled" && resL.value.status === "success") renderLomba(resL.value.data);
-                if(resG.status === "fulfilled" && resG.value.status === "success") renderGaleri(resG.value.data);
-                
-                if(resLomba.status === "fulfilled" && resLomba.value.status === "success") {
-                    cacheData.Contests = resLomba.value.contests;
-                    cacheData.Scores = resLomba.value.allData;
+            .then(([resK, resL, resG, resLomba]) => {
+                if(resK.status === "success") renderKeuangan(resK.data);
+                if(resL.status === "success") renderLomba(resL.data);
+                if(resG.status === "success") renderGaleri(resG.data);
+                if(resLomba.status === "success") {
+                    cacheData.Contests = resLomba.contests;
+                    cacheData.Scores = resLomba.allData;
                     setupSelectLomba();
                 }
             })
@@ -183,94 +162,44 @@
         }
 
         function renderKeuangan(data) {
-            const container = document.getElementById('keuangan-container');
-            container.innerHTML = ''; let tMasuk = 0, tKeluar = 0;
-            data.forEach((item, idx) => {
-                let nominal = Number(item.jumlah || item.nominal || 0);
-                let isMasuk = (item.jenis||'').toLowerCase().includes('masuk');
-                if(isMasuk) tMasuk += nominal; else tKeluar += nominal;
-                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td>${idx+1}</td><td><b>${item.item_kegiatan || item.keterangan || ''}</b><br><span class="text-xs text-gray-400">${item.sub_rincian||''}</span></td><td class="text-right ${isMasuk?'text-emerald-600':'text-rose-600'}">Rp ${nominal.toLocaleString('id-ID')}</td></tr>`;
-            });
-            document.getElementById('total-masuk').innerText = `Rp ${tMasuk.toLocaleString('id-ID')}`;
-            document.getElementById('total-keluar').innerText = `Rp ${tKeluar.toLocaleString('id-ID')}`;
-            document.getElementById('saldo-akhir').innerText = `Rp ${(tMasuk - tKeluar).toLocaleString('id-ID')}`;
-        }
+    const container = document.getElementById('keuangan-container');
+    container.innerHTML = ''; let tMasuk = 0, tKeluar = 0;
+    
+    // Hitung total saldo tetap menggunakan data asli (dari awal sampai akhir)
+    data.forEach((item) => {
+        let nominal = Number(item.jumlah || 0);
+        let isMasuk = (item.jenis||'').toLowerCase().includes('masuk');
+        if(isMasuk) tMasuk += nominal; else tKeluar += nominal;
+    });
 
-        // AKSI RENDERING DAN INJEKSI TOMBOL CETAK KARTU
+    // Balikkan urutan khusus saat menampilkan baris tabelnya saja
+    const kasTerbaru = [...data].reverse();
+    kasTerbaru.forEach((item, idx) => {
+        let nominal = Number(item.jumlah || 0);
+        let isMasuk = (item.jenis||'').toLowerCase().includes('masuk');
+        
+        // Nomor urut disesuaikan agar yang terbaru mendapat nomor sesuai urutan tampil
+        container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td>${idx+1}</td><td><b>${item.item_kegiatan || ''}</b><br><span class="text-xs text-gray-400">${item.sub_rincian||''}</span></td><td class="text-right ${isMasuk?'text-emerald-600':'text-rose-600'}">Rp ${nominal.toLocaleString('id-ID')}</td></tr>`;
+    });
+    
+    document.getElementById('total-masuk').innerText = `Rp ${tMasuk.toLocaleString('id-ID')}`;
+    document.getElementById('total-keluar').innerText = `Rp ${tKeluar.toLocaleString('id-ID')}`;
+    document.getElementById('saldo-akhir').innerText = `Rp ${(tMasuk - tKeluar).toLocaleString('id-ID')}`;
+}
+
         function renderLomba(data) {
             const container = document.getElementById('lomba-container'); container.innerHTML = '';
             data.forEach(item => {
-                let nomor = item.nomor || item.no || '';
-                let jenis = item.jenis_lomba || item.jenis || '';
-                let nama = item.nama_pendaftar || item.nama || '';
-                let asal = item.asal_kontingen || item.asal || '';
-
-                // Escape tanda petik agar string aman dikirim ke fungsi javascript parameter
-                let paramNo = String(nomor).replace(/'/g, "\\'");
-                let paramJenis = String(jenis).replace(/'/g, "\\'");
-                let paramNama = String(nama).replace(/'/g, "\\'");
-                let paramAsal = String(asal).replace(/'/g, "\\'");
-
-                container.innerHTML += `
-                <tr class="border-b text-sm hover:bg-slate-50">
-                    <td class="p-3 font-bold">#${nomor}</td>
-                    <td class="p-3">${jenis}</td>
-                    <td class="p-3 font-medium">${nama}</td>
-                    <td class="p-3">${asal}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="aksiCetakKartu('${paramNo}', '${paramJenis}', '${paramNama}', '${paramAsal}')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white font-bold text-xs py-1.5 px-3 rounded-lg border border-red-200 transition cursor-pointer">
-                            🖨️ Cetak
-                        </button>
-                    </td>
-                </tr>`;
+                container.innerHTML += `<tr class="border-b p-3 text-sm hover:bg-slate-50"><td><b>#${item.nomor}</b></td><td>${item.jenis}</td><td>${item.nama}</td><td>${item.asal}</td></tr>`;
             });
         }
 
-        // FUNGSI UTAMA: Pembuat Format Teks Cetakan Struk Kartu PHBN Bolano
-        function aksiCetakKartu(nomor, jenis, nama, asal) {
-            const box = document.getElementById('print-content-box');
-            
-            box.innerHTML = `
-                <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">PANITIA HARI BESAR NASIONAL</div>
-                <div style="font-weight: bold; font-size: 12px; margin-bottom: 5px; border-b: 1px dashed #000; padding-bottom: 5px;">HUT KEMERDEKAAN REPUBLIK INDONESIA</div>
-                <div style="font-weight: bold; font-size: 15px; margin: 10px 0; background-color: #000; color: #fff; padding: 3px; display: inline-block; width: 100%;">KARTU PESERTA</div>
-                
-                <table style="width: 100%; text-align: left; font-size: 13px; margin-top: 10px; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 90px; padding: 3px 0; vertical-align: top;">NO URUT</td>
-                        <td style="width: 10px; padding: 3px 0; vertical-align: top;">:</td>
-                        <td style="font-weight: bold; padding: 3px 0;">#${nomor}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 3px 0; vertical-align: top;">NAMA TIM</td>
-                        <td style="padding: 3px 0; vertical-align: top;">:</td>
-                        <td style="font-weight: bold; text-transform: uppercase; padding: 3px 0;">${nama}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 3px 0; vertical-align: top;">ASAL</td>
-                        <td style="padding: 3px 0; vertical-align: top;">:</td>
-                        <td style="padding: 3px 0;">${asal}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 3px 0; vertical-align: top;">CABANG LOMBA</td>
-                        <td style="padding: 3px 0; vertical-align: top;">:</td>
-                        <td style="font-style: italic; padding: 3px 0;">${jenis}</td>
-                    </tr>
-                </table>
-                
-                <div style="margin-top: 15px; border-t: 1px dashed #000; padding-top: 5px; font-size: 11px; font-style: italic;">
-                    *Harap dibawa dan ditunjukkan saat registrasi ulang di lokasi perlombaan.
-                </div>
-            `;
-
-            // Eksekusi print bawaan browser
-            window.print();
-        }
-
+        // PARSER PENERJEMAH URL UNTUK PREVIEW MEDIA OTOMATIS (YOUTUBE & IMGBB)
         function dapatkanMediaPreviewHTML(urlString) {
             if(!urlString) return '';
             const rawUrl = urlString.trim();
 
+            // 1. DETEKSI DAN KONVERSI LINK YOUTUBE MENJADI IFRAME EMBED PLAYER
             if (rawUrl.includes("youtube.com/watch") || rawUrl.includes("youtu.be/")) {
                 let videoId = "";
                 if(rawUrl.includes("youtube.com/watch")) {
@@ -288,8 +217,10 @@
                 }
             }
 
+            // 2. DETEKSI DAN PENYUSUNAN LINK DIREK GAMBAR FOTO IMGBB
             if (rawUrl.includes("ibb.co/")) {
                 let directImgUrl = rawUrl;
+                // Jika tautan mengarah ke halaman web imgbb biasa (bukan file langsung), konversi otomatis ke i.ibb.co
                 if(!rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                     let parts = rawUrl.split('/');
                     let idGambar = parts[parts.length - 1] || parts[parts.length - 2];
@@ -300,48 +231,39 @@
                 </div>`;
             }
 
+            // 3. FALLBACK MEDIA STANDARD JIKA LINK BERAKHIRAN EKSTENSI GAMBAR
             if(rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
                 return `<img src="${rawUrl}" class="w-full aspect-video object-cover rounded-lg mt-2 border shadow-xs">`;
             }
 
-            return `<a href="${rawUrl}" target="_blank" class="text-[11px] text-red-500 font-semibold block mt-1 underline">Lihat Dokumen Eksternal 🔗</a>`;
+            return `<span class="text-[11px] text-zinc-400 italic block mt-1">Tautan Media Eksternal 🔗</span>`;
         }
 
         function renderGaleri(data) {
-            const container = document.getElementById('galeri-container'); 
-            container.innerHTML = '';
-            
-            data.forEach(item => {
-                let linkMediaRaw = item.tautan_dokumentasi || item.link || item.links || '';
-                let namaAgenda = item.nama_agenda || item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
-                let ket = item.keterangan || item.deskripsi || '';
+    	    const container = document.getElementById('galeri-container'); 
+    	    container.innerHTML = '';
+    
+    	    // MEMBALIK URUTAN: Membuat data yang baru ditambahkan (paling bawah di Sheets) muncul paling atas
+            const dataTerbaru = [...data].reverse();
 
-                let daftarLink = linkMediaRaw.split(',').map(link => link.trim()).filter(link => link !== '');
-                
-                let previewMediaHTML = '';
-                daftarLink.forEach(link => {
-                    previewMediaHTML += dapatkanMediaPreviewHTML(link);
-                });
+           dataTerbaru.forEach(item => {
+             // Menyesuaikan pembacaan property objek sesuai database asli cloud
+            let linkMedia = item.link || item.links || '';
+            let namaAgenda = item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
+            let ket = item.keterangan || '';
 
-                container.innerHTML += `
-                <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
-                    <div>
-                        <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${namaAgenda}</h4>
-                        <p class="text-xs text-gray-500 mt-1 mb-2">${ket}</p>
-                        <div class="grid grid-cols-1 gap-2">
-                            ${previewMediaHTML}
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2 justify-end mt-3 border-t border-slate-100 pt-2">
-                        ${daftarLink.map((link, idx) => `
-                            <a href="${link}" target="_blank" class="text-[11px] text-red-600 font-bold hover:underline">
-                                Link #${idx + 1} 🔗
-                            </a>
-                        `).join('')}
-                    </div>
-                </div>`;
-            });
-        }
+            let previewMediaHTML = dapatkanMediaPreviewHTML(linkMedia);
+            container.innerHTML += `
+            <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
+            <div>
+                <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${namaAgenda}</h4>
+                <p class="text-xs text-gray-500 mt-1">${ket}</p>
+                ${previewMediaHTML}
+            </div>
+            <a href="${linkMedia}" target="_blank" class="text-xs text-red-600 font-bold block mt-3 hover:underline text-right">Buka Tautan Asli 🔗</a>
+        </div>`;
+    });
+}
 
         function setupSelectLomba() {
             const select = document.getElementById('dash-contest-select');
