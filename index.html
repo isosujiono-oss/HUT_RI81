@@ -26,13 +26,14 @@
 
     <main class="container mx-auto px-4 mt-6 max-w-5xl">
         
-        <!-- LOADING INDICATOR -->
-        <div id="info-loading" class="p-8 text-center text-zinc-500 font-medium bg-white rounded-2xl border mb-6">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-2"></div>
-            Menyinkronkan Papan Informasi Publik...
+        <!-- STATUS LOADING SEMENTARA -->
+        <div id="info-loading" class="p-4 text-center text-sm text-zinc-500 font-medium bg-white rounded-xl border mb-6 flex items-center justify-center gap-2">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+            <span>Menyinkronkan data terbaru dari cloud database...</span>
         </div>
 
-        <div id="content-area" class="hidden space-y-8">
+        <!-- AREA KONTEN UTAMA (KINI DIBUKA SECARA DEFAULT AGAR SELALU MUNCUL) -->
+        <div id="content-area" class="space-y-8">
             
             <!-- 1. LIVE SCORE / HASIL PERINGKAT LOMBA -->
             <section class="bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs">
@@ -42,7 +43,9 @@
                 </div>
                 <div class="mb-4">
                     <label class="text-xs font-bold text-zinc-500 uppercase block mb-1">Filter Cabang Lomba:</label>
-                    <select id="leaderboard-filter" onchange="renderLeaderboard()" class="w-full border rounded-lg px-3 py-2 text-sm bg-zinc-50 font-semibold"></select>
+                    <select id="leaderboard-filter" onchange="renderLeaderboard()" class="w-full border rounded-lg px-3 py-2 text-sm bg-zinc-50 font-semibold">
+                        <option value="">Memuat cabang lomba...</option>
+                    </select>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
@@ -55,7 +58,7 @@
                             </tr>
                         </thead>
                         <tbody id="table-leaderboard" class="divide-y divide-zinc-100 font-medium">
-                            <!-- Diisi oleh JS -->
+                            <tr><td colspan="4" class="p-4 text-center text-zinc-400">Menunggu data sinkronisasi cloud...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -79,7 +82,7 @@
                             </tr>
                         </thead>
                         <tbody id="table-peserta" class="divide-y divide-zinc-100 text-zinc-600">
-                            <!-- Diisi oleh JS -->
+                            <tr><td colspan="5" class="p-4 text-center text-zinc-400">Memuat registrasi peserta...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -116,7 +119,7 @@
                             </tr>
                         </thead>
                         <tbody id="table-keuangan" class="divide-y divide-zinc-100 text-zinc-600">
-                            <!-- Diisi oleh JS -->
+                            <tr><td colspan="4" class="p-4 text-center text-zinc-400">Memuat mutasi keuangan...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -129,7 +132,7 @@
                     <p class="text-xs text-zinc-400 mt-0.5">Klik tautan untuk melihat dokumentasi foto/video panitia</p>
                 </div>
                 <div id="grid-galeri" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Diisi oleh JS -->
+                    <p class="text-sm text-zinc-400">Memuat dokumen album...</p>
                 </div>
             </section>
 
@@ -144,14 +147,12 @@
 
         window.onload = function() {
             loadAllRealTimeData();
-            // Polling otomatis menyegarkan data audiens setiap 30 detik
-            setInterval(loadAllRealTimeData, 30000);
+            setInterval(loadAllRealTimeData, 30000); // refresh otomatis tiap 30 detik
         };
 
         function loadAllRealTimeData() {
             document.getElementById('info-loading').classList.remove('hidden');
             
-            // Mengambil semua data gabungan sekaligus dari cloud
             Promise.all([
                 fetch(`${SCRIPT_URL}?action=read&target=Keuangan`).then(r => r.json()),
                 fetch(`${SCRIPT_URL}?action=read&target=Lomba`).then(r => r.json()),
@@ -160,7 +161,6 @@
             ])
             .then(([resKeuangan, resPeserta, resGaleri, resLombaLengkap]) => {
                 document.getElementById('info-loading').classList.add('hidden');
-                document.getElementById('content-area').classList.remove('hidden');
 
                 renderKeuangan(resKeuangan.data || []);
                 renderPeserta(resPeserta.data || []);
@@ -171,13 +171,18 @@
                 
                 setupFilterLomba();
             })
-            .catch(() => {
-                alert("Gagal memperbarui data papan informasi. Memuat ulang otomatis...");
+            .catch((err) => {
+                console.error("Fetch error: ", err);
+                document.getElementById('info-loading').innerHTML = `<span class="text-red-600 font-bold">⚠️ Gagal sinkronisasi data cloud. Mencoba lagi otomatis...</span>`;
             });
         }
 
         function renderKeuangan(data) {
             let tBody = document.getElementById('table-keuangan');
+            if(!data.length) {
+                tBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-zinc-400">Belum ada data transaksi keuangan.</td></tr>`;
+                return;
+            }
             let pem = 0, peng = 0;
             
             tBody.innerHTML = data.reverse().map(row => {
@@ -199,7 +204,12 @@
         }
 
         function renderPeserta(data) {
-            document.getElementById('table-peserta').innerHTML = data.map(row => `
+            let tBody = document.getElementById('table-peserta');
+            if(!data.length) {
+                tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-zinc-400">Belum ada peserta lomba yang terdaftar.</td></tr>`;
+                return;
+            }
+            tBody.innerHTML = data.map(row => `
                 <tr class="hover:bg-zinc-50">
                     <td class="p-3 text-center font-bold font-mono text-zinc-900">${row.nomor || ''}</td>
                     <td class="p-3 font-semibold text-zinc-900">${row.jenis || ''}</td>
@@ -212,7 +222,7 @@
 
         function renderGaleri(data) {
             if(!data.length) {
-                document.getElementById('grid-galeri').innerHTML = `<p class="text-sm text-zinc-400">Belum ada album dokumentasi yang disematkan panitia.</p>`;
+                document.getElementById('grid-galeri').innerHTML = `<p class="text-sm text-zinc-400 p-2">Belum ada album dokumentasi yang disematkan panitia.</p>`;
                 return;
             }
             document.getElementById('grid-galeri').innerHTML = data.map(row => `
@@ -229,7 +239,7 @@
         function setupFilterLomba() {
             const select = document.getElementById('leaderboard-filter');
             if(!globalContests.length) {
-                select.innerHTML = `<option value="">Belum ada data kompetisi</option>`;
+                select.innerHTML = `<option value="">Belum ada grup kompetisi aktif</option>`;
                 return;
             }
             select.innerHTML = globalContests.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
@@ -246,17 +256,13 @@
                 return;
             }
 
-            // Agregasi nilai per peserta
             let rekapNilaiPeserta = contest.participants.map(pName => {
                 let filteredScores = globalScores.filter(s => s.contest_name === currentContest && s.participant_name === pName);
-                
-                // Menghitung jumlah nilai unik dari juri yang masuk
                 let juriSudahMenilai = [...new Set(filteredScores.map(s => s.judge_number))].length;
                 
                 let totalScore = 0;
                 if(filteredScores.length > 0) {
                     let totalPoin = filteredScores.reduce((acc, curr) => acc + curr.score, 0);
-                    // Rata-rata dari akumulasi nilai kriteria
                     totalScore = Math.round(totalPoin / juriSudahMenilai || 1);
                 }
 
@@ -267,7 +273,6 @@
                 };
             });
 
-            // Urutkan nilai tertinggi ke terendah
             rekapNilaiPeserta.sort((a, b) => b.score - a.score);
 
             if(!rekapNilaiPeserta.length) {
