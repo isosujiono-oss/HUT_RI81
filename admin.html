@@ -99,7 +99,7 @@
             </form>
         </section>
 
-        <!-- FORM MANAJEMEN KRITERIA & TOKEN JURI (UPDATE OTOMATISASI dropdown) -->
+        <!-- FORM MANAJEMEN KRITERIA & TOKEN JURI -->
         <section id="form-SetupLomba" class="form-section bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs hidden">
             <div class="border-b border-zinc-100 pb-3 mb-5">
                 <h2 class="text-lg font-black text-zinc-900">Manajemen Kriteria & Token Keamanan Juri</h2>
@@ -163,7 +163,8 @@
             });
         }
 
-        function loadKriteriaLombaTerpilled() {
+        // PERBAIKAN: Pembetulan nama fungsi agar selaras dengan pemanggilan DOM onchange
+        function loadKriteriaLombaTerpilih() {
             const chosenName = document.getElementById('setup-contest-name').value;
             const targetContest = localContestsData.find(c => c.name === chosenName);
             if (targetContest) {
@@ -208,6 +209,7 @@
             }).catch(() => { alert("Koneksi gagal."); btn.innerText = originalText; btn.disabled = false; });
         }
 
+        // PERBAIKAN: Memastikan pemrosesan array peserta mengambil string riil dari DOM input hidden
         function submitSetupLomba(e) {
             e.preventDefault();
             const chosenName = document.getElementById('setup-contest-name').value;
@@ -216,12 +218,13 @@
             const btn = document.getElementById('btn-SetupLomba');
             btn.innerText = "Mengunci Parameter Cloud..."; btn.disabled = true;
 
-            const targetContest = localContestsData.find(c => c.name === chosenName);
+            const rawParticipants = document.getElementById('setup-participants').value;
+            const arrayParticipants = rawParticipants.split('\n').filter(x => x.trim());
 
             const payload = {
                 action: "simpan_lomba",
                 name: chosenName,
-                participants: targetContest ? targetContest.participants : [],
+                participants: arrayParticipants,
                 criteria: document.getElementById('setup-criteria').value.split('\n').filter(x => x.trim()),
                 token1: document.getElementById('token-juri1').value.trim().toUpperCase(),
                 token2: document.getElementById('token-juri2').value.trim().toUpperCase(),
