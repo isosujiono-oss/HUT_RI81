@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin PHBN - Kecamatan Bolano</title>
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-zinc-100 font-sans text-zinc-800 pb-16">
@@ -27,7 +27,7 @@
             <button onclick="switchForm('Keuangan')" id="btn-form-Keuangan" class="w-full py-2.5 px-4 font-bold text-xs text-center rounded-xl bg-red-600 text-white">💰 Kas Keuangan</button>
             <button onclick="switchForm('Lomba')" id="btn-form-Lomba" class="w-full py-2.5 px-4 font-bold text-xs text-center rounded-xl text-zinc-500 hover:bg-zinc-100">🏆 Registrasi Peserta</button>
             <button onclick="switchForm('Galeri')" id="btn-form-Galeri" class="w-full py-2.5 px-4 font-bold text-xs text-center rounded-xl text-zinc-500 hover:bg-zinc-100">🖼️ Upload Galeri</button>
-            <button onclick="switchForm('SetupLomba')" id="btn-form-SetupLomba" class="w-full py-2.5 px-4 font-bold text-xs text-center rounded-xl text-zinc-500 hover:bg-zinc-100">⚙️ Setup Juri Lomba</button>
+            <button onclick="switchForm('SetupLomba')" id="btn-form-SetupLomba" class="w-full py-2.5 px-4 font-bold text-xs text-center rounded-xl text-zinc-500 hover:bg-zinc-100">⚙️ Setup Kriteria & Token</button>
         </div>
 
         <!-- FORM KEUANGAN -->
@@ -45,20 +45,16 @@
             </form>
         </section>
 
-        <!-- FORM REGISTRASI PESERTA (TERBARU) -->
+        <!-- FORM REGISTRASI PESERTA -->
         <section id="form-Lomba" class="form-section bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs hidden">
             <div class="border-b border-zinc-100 pb-3 mb-5 flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-black text-zinc-900">Form Registrasi Peserta Lomba</h2>
-                    <p class="text-xs text-zinc-400 mt-0.5">Data registrasi otomatis disinkronisasikan ke lembar penilaian Juri.</p>
+                    <p class="text-xs text-zinc-400 mt-0.5">Data kontestan otomatis disinkronisasikan ke lembar penilaian Juri.</p>
                 </div>
                 <button onclick="exportExcelData('Lomba')" class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs py-1.5 px-3 rounded-xl">📥 Excel</button>
             </div>
             <form onsubmit="submitForm(event, 'Lomba')" class="space-y-4">
-                <div class="bg-zinc-50 p-3 rounded-xl border border-zinc-200/60 mb-2">
-                    <span class="text-xs font-bold text-zinc-600 block uppercase tracking-wider">📋 HEADER PENDAFTARAN PESERTA</span>
-                </div>
-                
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nomor Urut</label>
@@ -73,7 +69,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Cabang Lomba</label>
                     <input type="text" id="l-jenis" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Gerak Jalan Indah" required>
@@ -86,7 +81,6 @@
                     <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Asal Kontingen</label>
                     <input type="text" id="l-asal" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Desa Bolano RT 04" required>
                 </div>
-
                 <button type="submit" id="btn-Lomba" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-xl text-sm transition hover:bg-red-700">🏆 Daftarkan Peserta & Sinkron Ke Juri</button>
             </form>
         </section>
@@ -105,28 +99,43 @@
             </form>
         </section>
 
-        <!-- FORM TAMBAHAN: SETUP JURI -->
+        <!-- FORM MANAJEMEN KRITERIA & TOKEN JURI (UPDATE OTOMATISASI dropdown) -->
         <section id="form-SetupLomba" class="form-section bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs hidden">
             <div class="border-b border-zinc-100 pb-3 mb-5">
-                <h2 class="text-lg font-black text-zinc-900">Manajemen Setup Lomba & Token Keamanan Juri</h2>
-                <p class="text-xs text-zinc-400 mt-0.5">Konfigurasi Manual Parameter Penilaian Utama & Kode Akses Mandiri Juri</p>
+                <h2 class="text-lg font-black text-zinc-900">Manajemen Kriteria & Token Keamanan Juri</h2>
+                <p class="text-xs text-zinc-400 mt-0.5">Atur kriteria penilaian dan kode akses mandiri juri untuk lomba yang sudah terdaftar.</p>
             </div>
             <form onsubmit="submitSetupLomba(event)" class="space-y-4">
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Lomba</label><input id="setup-contest-name" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Gerak Jalan Indah (Remaja)" required></div>
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Daftar Nama Peserta (Satu Nama Per Baris)</label><textarea id="setup-participants" rows="3" class="w-full border rounded-lg p-2.5 text-sm" placeholder="No. 01 - Garuda [ RT 02 ]" required></textarea></div>
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Kriteria Penilaian Lomba (Satu Kriteria Per Baris)</label><textarea id="setup-criteria" rows="3" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Kekompakan&#10;Kreativitas&#10;Kedisiplinan" required></textarea></div>
-                <div class="grid grid-cols-3 gap-3">
-                    <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1">Token Juri 1</label><input id="token-juri1" type="text" class="w-full border rounded-lg p-2 text-sm text-center font-mono" placeholder="J1-BOL" required></div>
-                    <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1">Token Juri 2</label><input id="token-juri2" type="text" class="w-full border rounded-lg p-2 text-sm text-center font-mono" placeholder="J2-BOL" required></div>
-                    <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1">Token Juri 3</label><input id="token-juri3" type="text" class="w-full border rounded-lg p-2 text-sm text-center font-mono" placeholder="J3-BOL" required></div>
+                <div>
+                    <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Pilih Lomba (Otomatis Sinkron Terdaftar)</label>
+                    <select id="setup-contest-name" onchange="loadKriteriaLombaTerpilih()" class="w-full border rounded-lg p-2.5 text-sm font-semibold bg-zinc-50 focus:outline-zinc-500" required>
+                        <option value="">Memuat data dari cloud...</option>
+                    </select>
                 </div>
-                <button type="submit" id="btn-SetupLomba" class="w-full bg-zinc-900 text-white font-bold py-3 px-4 rounded-xl text-sm transition">🔒 Amankan Konfigurasi & Token Lomba</button>
+                
+                <input type="hidden" id="setup-participants">
+
+                <div>
+                    <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Kriteria Penilaian Lomba (Satu Kriteria Per Baris)</label>
+                    <textarea id="setup-criteria" rows="3" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Kekompakan&#10;Kreativitas&#10;Kedisiplinan" required></textarea>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1">Token Juri 1</label><input id="token-juri1" type="text" class="w-full border rounded-lg p-2 text-sm text-center font-mono uppercase" placeholder="J1-BOL" required></div>
+                    <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1">Token Juri 2</label><input id="token-juri2" type="text" class="w-full border rounded-lg p-2 text-sm text-center font-mono uppercase" placeholder="J2-BOL" required></div>
+                    <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1">Token Juri 3</label><input id="token-juri3" type="text" class="w-full border rounded-lg p-2 text-sm text-center font-mono uppercase" placeholder="J3-BOL" required></div>
+                </div>
+                <button type="submit" id="btn-SetupLomba" class="w-full bg-zinc-900 text-white font-bold py-3 px-4 rounded-xl text-sm transition hover:bg-black">🔒 Amankan Kriteria & Token Lomba</button>
             </form>
         </section>
     </main>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYrV6pDt3LO9xyEgZXBTXaBs9uXWYr5dIpH38hl1pShJYK8Gbl_bgnLtIi447Tj4U6/exec";
+        let localContestsData = [];
+
+        window.onload = function() {
+            ambilDataDropdownLomba();
+        };
 
         function switchForm(target) {
             document.querySelectorAll('.form-section').forEach(el => el.classList.add('hidden'));
@@ -137,6 +146,33 @@
                     ? "w-full py-2.5 px-4 font-bold text-xs text-center rounded-xl bg-red-600 text-white shadow-xs"
                     : "w-full py-2.5 px-4 font-bold text-xs text-center rounded-xl text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100";
             });
+            if (target === 'SetupLomba') ambilDataDropdownLomba();
+        }
+
+        function ambilDataDropdownLomba() {
+            fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`)
+            .then(res => res.json()).then(res => {
+                localContestsData = res.contests || [];
+                const select = document.getElementById('setup-contest-name');
+                if(!localContestsData.length) {
+                    select.innerHTML = '<option value="">Belum ada kontes yang dibuat peserta</option>';
+                    return;
+                }
+                select.innerHTML = '<option value="">-- Pilih Cabang Kelompok Lomba --</option>' + 
+                    localContestsData.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            });
+        }
+
+        function loadKriteriaLombaTerpilled() {
+            const chosenName = document.getElementById('setup-contest-name').value;
+            const targetContest = localContestsData.find(c => c.name === chosenName);
+            if (targetContest) {
+                document.getElementById('setup-participants').value = targetContest.participants.join('\n');
+                document.getElementById('setup-criteria').value = targetContest.criteria.join('\n');
+                document.getElementById('token-juri1').value = targetContest.tokens.juri1;
+                document.getElementById('token-juri2').value = targetContest.tokens.juri2;
+                document.getElementById('token-juri3').value = targetContest.tokens.juri3;
+            }
         }
 
         function submitForm(e, targetSheet) {
@@ -168,29 +204,36 @@
                 alert(`Sukses: ${res.message}`);
                 e.target.reset();
                 btn.innerText = originalText; btn.disabled = false;
+                ambilDataDropdownLomba();
             }).catch(() => { alert("Koneksi gagal."); btn.innerText = originalText; btn.disabled = false; });
         }
 
         function submitSetupLomba(e) {
             e.preventDefault();
+            const chosenName = document.getElementById('setup-contest-name').value;
+            if(!chosenName) return alert("Pilih lomba terlebih dahulu!");
+
             const btn = document.getElementById('btn-SetupLomba');
             btn.innerText = "Mengunci Parameter Cloud..."; btn.disabled = true;
 
+            const targetContest = localContestsData.find(c => c.name === chosenName);
+
             const payload = {
                 action: "simpan_lomba",
-                name: document.getElementById('setup-contest-name').value.trim(),
-                participants: document.getElementById('setup-participants').value.split('\n').filter(x => x.trim()),
+                name: chosenName,
+                participants: targetContest ? targetContest.participants : [],
                 criteria: document.getElementById('setup-criteria').value.split('\n').filter(x => x.trim()),
-                token1: document.getElementById('token-juri1').value.trim(),
-                token2: document.getElementById('token-juri2').value.trim(),
-                token3: document.getElementById('token-juri3').value.trim()
+                token1: document.getElementById('token-juri1').value.trim().toUpperCase(),
+                token2: document.getElementById('token-juri2').value.trim().toUpperCase(),
+                token3: document.getElementById('token-juri3').value.trim().toUpperCase()
             };
 
             fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
             .then(res => res.json()).then(res => {
                 alert(res.message);
                 e.target.reset();
-                btn.innerText = "🔒 Amankan Konfigurasi & Token Lomba"; btn.disabled = false;
+                btn.innerText = "🔒 Amankan Kriteria & Token Lomba"; btn.disabled = false;
+                ambilDataDropdownLomba();
             }).catch(() => { alert("Error jaringan."); btn.disabled = false; });
         }
 
