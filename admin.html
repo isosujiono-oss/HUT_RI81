@@ -212,35 +212,36 @@
 
         // INTEGRASI FIX: Mengambil data string peserta riil dari elemen input hidden agar tidak terkirim kosong []
         function submitSetupLomba(e) {
-            e.preventDefault();
-            const chosenName = document.getElementById('setup-contest-name').value;
-            if(!chosenName) return alert("Pilih lomba terlebih dahulu!");
+    e.preventDefault();
+    const chosenName = document.getElementById('setup-contest-name').value;
+    if(!chosenName) return alert("Pilih lomba terlebih dahulu!");
 
-            const btn = document.getElementById('btn-SetupLomba');
-            btn.innerText = "Mengunci Parameter Cloud..."; btn.disabled = true;
+    const btn = document.getElementById('btn-SetupLomba');
+    btn.innerText = "Mengunci Parameter Cloud..."; btn.disabled = true;
 
-            const rawParticipants = document.getElementById('setup-participants').value;
-            const arrayParticipants = rawParticipants.split('\n').filter(x => x.trim());
+    const rawParticipants = document.getElementById('setup-participants').value;
+    const arrayParticipants = rawParticipants.split('\n').filter(x => x.trim());
 
-            const payload = {
-                action: "simpan_lomba",
-                name: chosenName,
-                participants: arrayParticipants,
-                criteria: document.getElementById('setup-criteria').value.split('\n').filter(x => x.trim()),
-                token1: document.getElementById('token-juri1').value.trim().toUpperCase(),
-                token2: document.getElementById('token-juri2').value.trim().toUpperCase(),
-                token3: document.getElementById('token-juri3').value.trim().toUpperCase()
-            };
+    // INTEGRASI FIX: Nama parameter diubah menjadi token1, token2, token3 
+    // agar dibaca dengan benar oleh fungsi simpanLombaBaru di Google Apps Script
+    const payload = {
+        action: "simpan_lomba",
+        name: chosenName,
+        participants: arrayParticipants,
+        criteria: document.getElementById('setup-criteria').value.split('\n').filter(x => x.trim()),
+        token1: document.getElementById('token-juri1').value.trim().toUpperCase(),
+        token2: document.getElementById('token-juri2').value.trim().toUpperCase(),
+        token3: document.getElementById('token-juri3').value.trim().toUpperCase()
+    };
 
-            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
-            .then(res => res.json()).then(res => {
-                alert(res.message);
-                e.target.reset();
-                btn.innerText = "🔒 Amankan Kriteria & Token Lomba"; btn.disabled = false;
-                ambilDataDropdownLomba();
-            }).catch(() => { alert("Error jaringan."); btn.disabled = false; });
-        }
-
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(res => res.json()).then(res => {
+        alert(res.message);
+        e.target.reset();
+        btn.innerText = "🔒 Amankan Kriteria & Token Lomba"; btn.disabled = false;
+        ambilDataDropdownLomba(); // Refresh data dropdown lokal kembali
+    }).catch(() => { alert("Error jaringan."); btn.disabled = false; });
+}
         function exportExcelData(targetSheet) {
             fetch(`${SCRIPT_URL}?action=read&target=${targetSheet}`).then(res => res.json()).then(res => {
                 const wb = XLSX.utils.book_new();
