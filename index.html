@@ -240,21 +240,25 @@
         }
 
         function renderGaleri(data) {
-    	    const container = document.getElementById('galeri-container'); 
-    	    container.innerHTML = '';
-    
-    	    // MEMBALIK URUTAN: Membuat data yang baru ditambahkan (paling bawah di Sheets) muncul paling atas
-            const dataTerbaru = [...data].reverse();
+    const container = document.getElementById('galeri-container'); 
+    container.innerHTML = '';
 
-           dataTerbaru.forEach(item => {
-             // Menyesuaikan pembacaan property objek sesuai database asli cloud
-            let linkMedia = item.link || item.links || '';
-            let namaAgenda = item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
-            let ket = item.keterangan || '';
+    // CLONING DATA: Membuat salinan data agar tidak merusak urutan asli di sistem utama,
+    // lalu membaliknya agar data paling baru (paling bawah di Sheets) muncul paling atas.
+    const dataTerbaru = [...data].reverse();
 
-            let previewMediaHTML = dapatkanMediaPreviewHTML(linkMedia);
-            container.innerHTML += `
-            <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
+    dataTerbaru.forEach(item => {
+        // Menyesuaikan pembacaan properti objek sesuai database asli cloud
+        let linkMedia = item.link || item.links || '';
+        let namaAgenda = item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
+        let ket = item.keterangan || '';
+
+        // Mengambil HTML preview gambar/video berdasarkan link yang ada
+        let previewMediaHTML = dapatkanMediaPreviewHTML(linkMedia);
+        
+        // Menggabungkan bingkai foto secara berurutan (tidak menimpa satu sama lain)
+        container.innerHTML += `
+        <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
             <div>
                 <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${namaAgenda}</h4>
                 <p class="text-xs text-gray-500 mt-1">${ket}</p>
