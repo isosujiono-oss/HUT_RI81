@@ -52,13 +52,20 @@
         let inputedToken = "";
 
         window.onload = function() {
+            loadContestsData();
+        };
+
+        function loadContestsData() {
+            document.getElementById('loading').classList.remove('hidden');
             fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`)
             .then(res => res.json()).then(res => {
                 contests = res.contests;
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
+            }).catch(() => {
+                alert("Gagal memuat parameter data dari cloud.");
             });
-        };
+        }
 
         function pilihRoleJuri(num) {
             const token = document.getElementById('auth-token').value.trim();
@@ -77,12 +84,18 @@
         function backToRoles() {
             document.getElementById('page-scoring').classList.add('hidden');
             document.getElementById('page-roles').classList.remove('hidden');
+            loadContestsData(); // Refresh data kontestan saat kembali
         }
 
         function renderFormPenilaian() {
             const contestName = document.getElementById('juri-contest-select').value;
             const contest = contests.find(c => c.name === contestName);
             const wrapper = document.getElementById('scoring-area-wrapper');
+
+            if (!contest || !contest.participants.length) {
+                wrapper.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">Belum ada data peserta terdaftar untuk kelompok lomba ini.</p>`;
+                return;
+            }
 
             let html = `<h3 class="font-bold text-base mb-4 text-gray-800">Lembar Penilaian Juri ${currentJuriNum}</h3>`;
             
@@ -107,6 +120,8 @@
             const inputs = document.querySelectorAll('.score-input');
             let barisNilai = [];
             let isValid = true;
+
+            if(!inputs.length) return alert("Tidak ada nilai peserta untuk dikirim.");
 
             inputs.forEach(input => {
                 let scoreVal = parseInt(input.value);
