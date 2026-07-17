@@ -239,36 +239,92 @@
             return `<span class="text-[11px] text-zinc-400 italic block mt-1">Tautan Media Eksternal 🔗</span>`;
         }
 
+    // 1. KODE PERBAIKAN UNTUK MEMPROSES MULTI-LINK DENGAN TANDA KOMA
         function renderGaleri(data) {
-    const container = document.getElementById('galeri-container'); 
-    container.innerHTML = '';
-
-    // CLONING DATA: Membuat salinan data agar tidak merusak urutan asli di sistem utama,
-    // lalu membaliknya agar data paling baru (paling bawah di Sheets) muncul paling atas.
-    const dataTerbaru = [...data].reverse();
-
-    dataTerbaru.forEach(item => {
-        // Menyesuaikan pembacaan properti objek sesuai database asli cloud
-        let linkMedia = item.link || item.links || '';
-        let namaAgenda = item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
-        let ket = item.keterangan || '';
-
-        // Mengambil HTML preview gambar/video berdasarkan link yang ada
-        let previewMediaHTML = dapatkanMediaPreviewHTML(linkMedia);
+            const container = document.getElementById('galeri-container'); 
+            container.innerHTML = '';
         
-        // Menggabungkan bingkai foto secara berurutan (tidak menimpa satu sama lain)
-        container.innerHTML += `
-        <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
-            <div>
-                <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${namaAgenda}</h4>
-                <p class="text-xs text-gray-500 mt-1">${ket}</p>
-                ${previewMediaHTML}
-            </div>
-            <a href="${linkMedia}" target="_blank" class="text-xs text-red-600 font-bold block mt-3 hover:underline text-right">Buka Tautan Asli 🔗</a>
-        </div>`;
-    });
-}
+            // Amankan data asli (cloning) dan balikkan agar yang terbaru berada di atas
+            const dataTerbaru = [...data].reverse();
+        
+            dataTerbaru.forEach(item => {
+                let linkMediaRaw = item.link || item.links || '';
+                let namaAgenda = item.agenda || item.nama_kegiatan || 'Dokumentasi PHBN';
+                let ket = item.keterangan || '';
+        
+                // Memecah link berdasarkan tanda koma
+                let daftarLink = linkMediaRaw.split(',');
+                let semuaPreviewHTML = '';
+                let semuaLinkAsliHTML = '';
+        
+                daftarLink.forEach((linkTunggal) => {
+                    let linkBersih = linkTunggal.trim(); // Menghilangkan spasi tidak sengaja
+                    if(linkBersih) {
+                        // Panggil parser untuk setiap link secara mandiri
+                        semuaPreviewHTML += dapatkanMediaPreviewHTML(linkBersih);
+                        semuaLinkAsliHTML += `<a href="${linkBersih}" target="_blank" class="inline-block bg-red-50 text-red-600 font-bold text-[10px] px-2 py-1 rounded border border-red-200 hover:underline mr-1 mb-1">Link Asli 🔗</a>`;
+                    }
+                });
+        
+                container.innerHTML += `
+                <div class="bg-white border rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition">
+                    <div>
+                        <h4 class="font-extrabold text-sm text-slate-800 tracking-tight">${namaAgenda}</h4>
+                        <p class="text-xs text-gray-500 mt-1 mb-2">${ket}</p>
+                        <div class="flex flex-col gap-2">${semuaPreviewHTML}</div>
+                    </div>
+                    <div class="mt-3 text-right">
+                        ${semuaLinkAsliHTML}
+                    </div>
+                </div>`;
+            });
+        }
 
+// 2. KODE PARSER YANG SUDAH AMAN DARI MULTI-LINK
+    function dapatkanMediaPreviewHTML(urlString) {
+        if(!urlString) return '';
+        const rawUrl = urlString.trim();
+    
+        // 1. DETEKSI YOUTUBE
+        if (rawUrl.includes("youtube.com/watch") || rawUrl.includes("youtu.be/")) {
+            let videoId = "";
+            if(rawUrl.includes("youtube.com/watch")) {
+                try {
+                    const urlParams = new URLSearchParams(new URL(rawUrl).search);
+                    videoId = urlParams.get('v');
+                } catch(e) { }
+            } else {
+                videoId = rawUrl.split("/").pop().split("?")[0];
+            }
+            if(videoId) {
+                return `<div class="relative w-full aspect-video rounded-lg overflow-hidden border mt-1 shadow-xs">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+                </div>`;
+            }
+        }
+
+    // 2. DETEKSI IMGBB (Sudah diperbaiki agar aman diproses satu per satu)
+            if (rawUrl.includes("ibb.co/")) {
+                let directImgUrl = rawUrl;
+                if(!rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+                    let parts = rawUrl.split('/');
+                    let idGambar = parts[parts.length - 1] || parts[parts.length - 2];
+                    // Hapus sisa tanda baca jika ada gangguan split
+                    idGambar = idGambar.split('?')[0].split('#')[0];
+                    directImgUrl = `https://i.ibb.co/${idGambar}.png`; 
+                }
+                return `<div class="w-full aspect-video rounded-lg overflow-hidden border mt-1 bg-zinc-100 flex items-center justify-center shadow-xs">
+                    <img src="${directImgUrl}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Gambar+Galeri';">
+                </div>`;
+            }
+        
+            // 3. FALLBACK FORMAT GAMBAR DIREK LAINNYA
+            if(rawUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+                return `<img src="${rawUrl}" class="w-full aspect-video object-cover rounded-lg mt-1 border shadow-xs">`;
+            }
+        
+            return `<span class="text-[11px] text-zinc-400 italic block mt-1">Tautan Media Eksternal 🔗</span>`;
+        }
         function setupSelectLomba() {
             const select = document.getElementById('dash-contest-select');
             const currentSelected = select.value;
