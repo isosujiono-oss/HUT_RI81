@@ -13,37 +13,55 @@
 </head>
 <body class="bg-zinc-50 font-sans text-zinc-800 pb-16">
 
-    <!-- HEADER UTAMA TEMA HUT RI -->
-    <header class="bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white shadow-lg border-b-4 border-white">
-        <div class="container mx-auto px-4 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-center md:text-left">
-                <div class="flex items-center justify-center md:justify-start gap-2">
-                    <span class="bg-white text-red-700 font-black px-2 py-0.5 rounded-md text-xs uppercase shadow-xs animate-pulse">LIVE</span>
-                    <h1 class="text-2xl font-black tracking-wide uppercase drop-shadow-md">PHBN KECAMATAN BOLANO</h1>
-                </div>
-                <p class="text-xs text-red-100 font-medium mt-1 uppercase tracking-wider">Papan Informasi Digital Terpadu • HUT Kemerdekaan RI</p>
+    <!-- HEADER UTAMA MEGA TEMA HUT RI (TEKS DI TENGAH & BESAR) -->
+    <header class="bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white shadow-lg border-b-4 border-white text-center py-8 px-4 relative">
+        <div class="container mx-auto max-w-3xl">
+            <div class="inline-flex items-center gap-2 mb-2 bg-white/10 px-3 py-1 rounded-full border border-white/20 shadow-inner">
+                <span class="bg-white text-red-700 font-black px-2 py-0.5 rounded-md text-[10px] uppercase tracking-widest animate-pulse">LIVE SYSTEM</span>
+                <span class="text-xs text-red-100 font-bold tracking-wider">REAL-TIME CLOUD SHEET</span>
             </div>
-            <div class="flex items-center gap-3">
-                <!-- Tombol Dashboard Admin Telah Dihapus dari Sini demi Keamanan Akses -->
-                <button onclick="loadAllRealTimeData()" class="bg-white text-red-700 font-black hover:bg-zinc-100 transition font-bold text-xs py-2.5 px-5 rounded-xl shadow-md">🔄 Segarkan Data</button>
-            </div>
+            
+            <!-- Judul Utama Besar di Tengah -->
+            <h1 class="text-3xl md:text-4xl font-black tracking-tight uppercase drop-shadow-md leading-tight">
+                PANITIA HARI BESAR NASIONAL<br>KECAMATAN BOLANO
+            </h1>
+            
+            <!-- Sub-judul -->
+            <p class="text-sm md:text-base text-red-100 font-semibold mt-2 uppercase tracking-widest drop-shadow-xs max-w-2xl mx-auto">
+                Papan Informasi Terpadu Interaktif
+            </p>
         </div>
+
+        <!-- Tombol Refresh Manual Mengambang di Pojok Kanan Atas -->
+        <button onclick="loadAllRealTimeData()" class="absolute top-4 right-4 bg-white/10 hover:bg-white/20 transition p-2 rounded-xl border border-white/20 text-white shadow-xs cursor-pointer" title="Segarkan Data">
+            🔄
+        </button>
     </header>
+
+    <!-- RUNNING TEXT (INFORMASI BERJALAN INTERAKTIF DI BAWAH HEADER) -->
+    <div class="bg-zinc-900 text-amber-400 py-2 border-b border-zinc-800 font-bold text-xs tracking-wide shadow-xs">
+        <div class="container mx-auto px-4 overflow-hidden">
+            <marquee behavior="scroll" direction="left" scrollamount="5" class="cursor-default">
+                🇮🇩 SELAMAT DATANG DI PORTAL DIGITAL PHBN KECAMATAN BOLANO • KAS KEUANGAN, DATA PESERTA, DAN LIVE RANKING SCORE BERSIFAT TRANSPARAN DAN REAL-TIME • REFRESH OTOMATIS BERJALAN SETIAP 1 MENIT • MERDEKA! 🇮🇩
+                <!-- Anda bisa menambahkan teks baru di bawah ini dengan menyalin format di atas jika diperlukan -->
+            </marquee>
+        </div>
+    </div>
 
     <!-- NAVIGASI MENU MENYAMPING DI ATAS (TAB SYSTEM) -->
     <nav class="bg-white border-b border-zinc-200 sticky top-0 z-50 shadow-xs">
         <div class="container mx-auto px-4">
             <div class="flex justify-start md:justify-center overflow-x-auto no-scrollbar py-2 gap-1.5 whitespace-nowrap">
-                <button onclick="switchTab('score')" id="tab-score" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition bg-red-600 text-white shadow-xs">
+                <button onclick="switchTab('score')" id="tab-score" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition bg-red-600 text-white shadow-xs cursor-pointer">
                     🏆 Hasil Peringkat Lomba
                 </button>
-                <button onclick="switchTab('peserta')" id="tab-peserta" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100">
+                <button onclick="switchTab('peserta')" id="tab-peserta" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100 cursor-pointer">
                     📋 Daftar Peserta
                 </button>
-                <button onclick="switchTab('keuangan')" id="tab-keuangan" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100">
+                <button onclick="switchTab('keuangan')" id="tab-keuangan" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100 cursor-pointer">
                     💰 Kas Keuangan PHBN
                 </button>
-                <button onclick="switchTab('galeri')" id="tab-galeri" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100">
+                <button onclick="switchTab('galeri')" id="tab-galeri" class="tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100 cursor-pointer">
                     🖼️ Dokumentasi Galeri
                 </button>
             </div>
@@ -172,7 +190,11 @@
 
         window.onload = function() {
             loadAllRealTimeData();
-            setInterval(loadAllRealTimeData, 15000); // Sinkronisasi otomatis di background tiap 15 detik
+            
+            // FUNGSI RELOAD HALAMAN SEUTUHNYA SETIAP 1 MENIT (60000 milidetik)
+            setInterval(function() {
+                window.location.reload();
+            }, 60000);
         };
 
         function switchTab(targetId) {
@@ -181,9 +203,9 @@
             
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 if(btn.id === `tab-${targetId}`) {
-                    btn.className = "tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition bg-red-600 text-white shadow-xs";
+                    btn.className = "tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition bg-red-600 text-white shadow-xs cursor-pointer";
                 } else {
-                    btn.className = "tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100";
+                    btn.className = "tab-btn px-5 py-2.5 font-black text-xs uppercase tracking-wider rounded-xl transition text-zinc-600 hover:bg-zinc-100 cursor-pointer";
                 }
             });
         }
