@@ -13,10 +13,18 @@
 </head>
 <body class="bg-zinc-50 font-sans text-zinc-800 pb-16">
 
-    <!-- HEADER UTAMA MEGA TEMA HUT RI (TEKS DI TENGAH & BESAR) -->
+    <!-- HEADER UTAMA MEGA TEMA HUT RI (TEKS DI TENGAH, BESAR, & LOGO GARUDA) -->
     <header class="bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white shadow-lg border-b-4 border-white text-center py-8 px-4 relative">
-        <div class="container mx-auto max-w-3xl">
-            <div class="inline-flex items-center gap-2 mb-2 bg-white/10 px-3 py-1 rounded-full border border-white/20 shadow-inner">
+        <div class="container mx-auto max-w-3xl flex flex-col items-center">
+            
+            <!-- LOGO BURUNG GARUDA PANCASILA RESMI & KEREN -->
+            <div class="mb-4 drop-shadow-lg transform hover:scale-105 transition-transform duration-300">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/National_emblem_of_Indonesia_Garuda_Pancasila.svg/640px-National_emblem_of_Indonesia_Garuda_Pancasila.svg.png" 
+                     alt="Garuda Pancasila" 
+                     class="h-24 md:h-28 w-auto object-contain">
+            </div>
+
+            <div class="inline-flex items-center gap-2 mb-3 bg-white/10 px-3 py-1 rounded-full border border-white/20 shadow-inner">
                 <span class="bg-white text-red-700 font-black px-2 py-0.5 rounded-md text-[10px] uppercase tracking-widest animate-pulse">LIVE SYSTEM</span>
                 <span class="text-xs text-red-100 font-bold tracking-wider">REAL-TIME CLOUD SHEET</span>
             </div>
@@ -43,7 +51,6 @@
         <div class="container mx-auto px-4 overflow-hidden">
             <marquee behavior="scroll" direction="left" scrollamount="5" class="cursor-default">
                 🇮🇩 SELAMAT DATANG DI PORTAL DIGITAL PHBN KECAMATAN BOLANO • KAS KEUANGAN, DATA PESERTA, DAN LIVE RANKING SCORE BERSIFAT TRANSPARAN DAN REAL-TIME • REFRESH OTOMATIS BERJALAN SETIAP 1 MENIT • MERDEKA! 🇮🇩
-                <!-- Anda bisa menambahkan teks baru di bawah ini dengan menyalin format di atas jika diperlukan -->
             </marquee>
         </div>
     </div>
@@ -155,10 +162,10 @@
                     <table class="w-full text-left text-sm border-collapse">
                         <thead>
                             <tr class="bg-zinc-50 text-zinc-700 text-xs font-bold uppercase border-b border-zinc-200">
-                                <th class="p-3 w-32">Jenis Arus</th>
-                                <th class="p-3">Item Kegiatan / Keperluan</th>
-                                <th class="p-3">Sub Rincian</th>
-                                <th class="p-3 text-right w-44">Nominal</th>
+                                <th class="p-3 w-28">Jenis Arus</th>
+                                <th class="p-3 w-52">Item Kegiatan / Rincian</th>
+                                <th class="p-3">Sub Rincian Keterangan</th>
+                                <th class="p-3 text-right w-36">Nominal</th>
                             </tr>
                         </thead>
                         <tbody id="table-keuangan" class="divide-y divide-zinc-100 text-zinc-600">
@@ -191,7 +198,7 @@
         window.onload = function() {
             loadAllRealTimeData();
             
-            // FUNGSI RELOAD HALAMAN SEUTUHNYA SETIAP 1 MENIT (60000 milidetik)
+            // Otomatis refresh seluruh halaman (F5 mandiri) setiap 1 menit tepat
             setInterval(function() {
                 window.location.reload();
             }, 60000);
@@ -249,10 +256,12 @@
                 let isPemasukan = row.jenis === "Pemasukan";
                 if(isPemasukan) pem += nominal; else peng += nominal;
 
+                let subRincianText = row.sub_rincian || row.subrincian || row.sub || "-";
+
                 return `<tr class="hover:bg-zinc-50 transition">
                     <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-black ${isPemasukan ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${row.jenis}</span></td>
-                    <td class="p-3 font-bold text-zinc-900">${row.item_kegiatan || ''}</td>
-                    <td class="p-3 text-zinc-500">${row.sub_rincian || ''}</td>
+                    <td class="p-3 font-bold text-zinc-900 leading-tight">${row.item_kegiatan || row.item || ''}</td>
+                    <td class="p-3 text-xs text-zinc-600 font-medium whitespace-pre-line">${subRincianText}</td>
                     <td class="p-3 text-right font-mono font-black text-sm ${isPemasukan ? 'text-emerald-600' : 'text-red-600'}">Rp ${nominal.toLocaleString('id-ID')}</td>
                 </tr>`;
             }).join('');
