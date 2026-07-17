@@ -51,13 +51,15 @@
                 <div><h2 class="text-lg font-black text-zinc-900">Form Registrasi Peserta Lomba</h2></div>
                 <button onclick="exportExcelData('Lomba')" class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs py-1.5 px-3 rounded-xl">📥 Excel</button>
             </div>
-            <form onsubmit="submitForm(event, 'Lomba')" class="space-y-4">
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nomor Urut</label><input type="number" id="l-nomor" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Cabang Lomba</label><input type="text" id="l-jenis" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Peserta / Tim</label><input type="text" id="l-nama" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Asal Kontingen</label><input type="text" id="l-asal" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-                <button type="submit" id="btn-Lomba" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-xl text-sm">🏆 Daftarkan Peserta</button>
-            </form>
+         <form onsubmit="submitForm(event, 'Lomba')" class="space-y-4">
+            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nomor Urut</label><input type="number" id="l-nomor" class="w-full border rounded-lg p-2.5 text-sm" required></div>
+            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Cabang Lomba</label><input type="text" id="l-jenis" class="w-full border rounded-lg p-2.5 text-sm" required></div>
+            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Peserta / Tim</label><input type="text" id="l-nama" class="w-full border rounded-lg p-2.5 text-sm" required></div>
+            <!-- Kolom Baru Kategori -->
+            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Kategori</label><input type="text" id="l-kategori" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Dewasa / Anak-Anak" required></div>
+            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Asal Kontingen</label><input type="text" id="l-asal" class="w-full border rounded-lg p-2.5 text-sm" required></div>
+            <button type="submit" id="btn-Lomba" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-xl text-sm">🏆 Daftarkan Peserta</button>
+        </form>
         </section>
 
         <!-- FORM GALERI -->
