@@ -169,6 +169,7 @@
             const chosenName = document.getElementById('setup-contest-name').value;
             const targetContest = localContestsData.find(c => c.name === chosenName);
             if (targetContest) {
+                // Mengisi data internal secara akurat sesuai lomba yang dipilih
                 document.getElementById('setup-participants').value = targetContest.participants.join('\n');
                 document.getElementById('setup-criteria').value = targetContest.criteria.join('\n');
                 document.getElementById('token-juri1').value = targetContest.tokens.juri1;
