@@ -8,27 +8,285 @@
 </head>
 <body class="bg-zinc-100 font-sans text-zinc-800 pb-16">
 
+    <!-- HEADER -->
     <header class="bg-zinc-900 text-white shadow-md">
         <div class="container mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-2">
             <div class="text-center sm:text-left">
                 <h1 class="text-2xl font-black tracking-wide flex items-center justify-center sm:justify-start">
-                    <span class="bg-red-600 text-white px-2 py-0.5 rounded-md mr-2 text-sm uppercase">LIVE</span> PAPAN INFORMASI PHBN
+                    <span class="bg-red-600 text-white px-2 py-0.5 rounded-md mr-2 text-sm uppercase animate-pulse">LIVE</span> PAPAN INFORMASI PHBN
                 </h1>
-                <p class="text-xs text-zinc-400 mt-0.5">Monitoring Keuangan, Pendaftaran Peserta Lomba & Monitoring Juri</p>
+                <p class="text-xs text-zinc-400 mt-0.5">Kecamatan Bolano — Real-Time Berbasis Cloud Sheet</p>
             </div>
-            <a href="admin.html" class="bg-zinc-800 hover:bg-zinc-700 font-bold text-xs py-2 px-4 rounded-xl border border-zinc-700 text-white">⚙️ Pos Kendali Admin</a>
+            <div class="flex gap-2">
+                <button onclick="loadAllRealTimeData()" class="bg-zinc-800 hover:bg-zinc-700 font-bold text-xs py-2 px-3 rounded-xl border border-zinc-700 text-white">🔄 Segarkan Data</button>
+                <a href="admin.html" class="bg-zinc-800 hover:bg-zinc-700 font-bold text-xs py-2 px-3 rounded-xl border border-zinc-700 text-zinc-400">⚙️ Admin</a>
+            </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 mt-6 max-w-4xl text-center">
-        <div class="bg-white border border-zinc-200 p-8 rounded-2xl shadow-xs">
-            <h2 class="text-xl font-bold mb-2">Selamat Datang di Portal Publik PHBN Bolano</h2>
-            <p class="text-zinc-500 text-sm mb-4">Papan Rekap Monitoring Keuangan dan Score Board Perlombaan sedang disinkronisasikan secara terpusat.</p>
-            <div class="inline-flex gap-2">
-                <a href="juri.html" class="bg-red-600 text-white font-bold text-xs py-2.5 px-5 rounded-xl">Portal Masuk Juri ⚖️</a>
-            </div>
+    <main class="container mx-auto px-4 mt-6 max-w-5xl">
+        
+        <!-- LOADING INDICATOR -->
+        <div id="info-loading" class="p-8 text-center text-zinc-500 font-medium bg-white rounded-2xl border mb-6">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-2"></div>
+            Menyinkronkan Papan Informasi Publik...
+        </div>
+
+        <div id="content-area" class="hidden space-y-8">
+            
+            <!-- 1. LIVE SCORE / HASIL PERINGKAT LOMBA -->
+            <section class="bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs">
+                <div class="border-b border-zinc-100 pb-3 mb-4">
+                    <h2 class="text-lg font-black text-zinc-900 flex items-center">🏆 Live Score & Peringkat Sementara</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">Urutan otomatis dihitung berdasarkan rata-rata nilai gabungan Juri 1, 2, dan 3</p>
+                </div>
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-zinc-500 uppercase block mb-1">Filter Cabang Lomba:</label>
+                    <select id="leaderboard-filter" onchange="renderLeaderboard()" class="w-full border rounded-lg px-3 py-2 text-sm bg-zinc-50 font-semibold"></select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-zinc-950 text-white text-xs font-bold uppercase">
+                                <th class="p-3 rounded-l-lg text-center">Rank</th>
+                                <th class="p-3">Nama Peserta / Tim</th>
+                                <th class="p-3 text-center">Total Score</th>
+                                <th class="p-3 text-center rounded-r-lg">Status Juri</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-leaderboard" class="divide-y divide-zinc-100 font-medium">
+                            <!-- Diisi oleh JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 2. DAFTAR PESERTA LOMBA TERDAFTAR -->
+            <section class="bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs">
+                <div class="border-b border-zinc-100 pb-3 mb-4">
+                    <h2 class="text-lg font-black text-zinc-900">📋 Daftar Seluruh Peserta Lomba</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">Konfirmasi registrasi kontingen resmi di database</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-zinc-100 text-zinc-700 text-xs font-bold uppercase border-b">
+                                <th class="p-3 text-center">No. Urut</th>
+                                <th class="p-3">Cabang Lomba</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3">Nama Peserta</th>
+                                <th class="p-3">Asal Kontingen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-peserta" class="divide-y divide-zinc-100 text-zinc-600">
+                            <!-- Diisi oleh JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 3. REAL-TIME KAS KEUANGAN -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-emerald-600 text-white p-5 rounded-2xl shadow-xs">
+                    <p class="text-xs uppercase font-bold opacity-80">Total Pemasukan</p>
+                    <h3 id="card-pemasukan" class="text-2xl font-black mt-1">Rp 0</h3>
+                </div>
+                <div class="bg-red-600 text-white p-5 rounded-2xl shadow-xs">
+                    <p class="text-xs uppercase font-bold opacity-80">Total Pengeluaran</p>
+                    <h3 id="card-pengeluaran" class="text-2xl font-black mt-1">Rp 0</h3>
+                </div>
+                <div class="bg-zinc-900 text-white p-5 rounded-2xl shadow-xs">
+                    <p class="text-xs uppercase font-bold opacity-80">Saldo Kas Bersih</p>
+                    <h3 id="card-saldo" class="text-2xl font-black mt-1">Rp 0</h3>
+                </div>
+            </section>
+
+            <section class="bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs">
+                <div class="border-b border-zinc-100 pb-3 mb-4">
+                    <h2 class="text-lg font-black text-zinc-900">💰 Log Aliran Kas Terakhir</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-zinc-50 text-zinc-700 text-xs font-bold uppercase border-b">
+                                <th class="p-3">Aliran</th>
+                                <th class="p-3">Item Kegiatan</th>
+                                <th class="p-3">Sub Rincian</th>
+                                <th class="p-3 text-right">Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-keuangan" class="divide-y divide-zinc-100 text-zinc-600">
+                            <!-- Diisi oleh JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 4. ALBUM GALERI & DOKUMENTASI -->
+            <section class="bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs">
+                <div class="border-b border-zinc-100 pb-3 mb-4">
+                    <h2 class="text-lg font-black text-zinc-900">🖼️ Album Dokumentasi Kegiatan</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">Klik tautan untuk melihat dokumentasi foto/video panitia</p>
+                </div>
+                <div id="grid-galeri" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Diisi oleh JS -->
+                </div>
+            </section>
+
         </div>
     </main>
 
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYrV6pDt3LO9xyEgZXBTXaBs9uXWYr5dIpH38hl1pShJYK8Gbl_bgnLtIi447Tj4U6/exec";
+        
+        let globalContests = [];
+        let globalScores = [];
+
+        window.onload = function() {
+            loadAllRealTimeData();
+            // Polling otomatis menyegarkan data audiens setiap 30 detik
+            setInterval(loadAllRealTimeData, 30000);
+        };
+
+        function loadAllRealTimeData() {
+            document.getElementById('info-loading').classList.remove('hidden');
+            
+            // Mengambil semua data gabungan sekaligus dari cloud
+            Promise.all([
+                fetch(`${SCRIPT_URL}?action=read&target=Keuangan`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=read&target=Lomba`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=read&target=Galeri`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`).then(r => r.json())
+            ])
+            .then(([resKeuangan, resPeserta, resGaleri, resLombaLengkap]) => {
+                document.getElementById('info-loading').classList.add('hidden');
+                document.getElementById('content-area').classList.remove('hidden');
+
+                renderKeuangan(resKeuangan.data || []);
+                renderPeserta(resPeserta.data || []);
+                renderGaleri(resGaleri.data || []);
+                
+                globalContests = resLombaLengkap.contests || [];
+                globalScores = resLombaLengkap.allData || [];
+                
+                setupFilterLomba();
+            })
+            .catch(() => {
+                alert("Gagal memperbarui data papan informasi. Memuat ulang otomatis...");
+            });
+        }
+
+        function renderKeuangan(data) {
+            let tBody = document.getElementById('table-keuangan');
+            let pem = 0, peng = 0;
+            
+            tBody.innerHTML = data.reverse().map(row => {
+                let nominal = Number(row.jumlah || row.nominal || 0);
+                let isPemasukan = row.jenis === "Pemasukan";
+                if(isPemasukan) pem += nominal; else peng += nominal;
+
+                return `<tr class="hover:bg-zinc-50">
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${isPemasukan ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${row.jenis}</span></td>
+                    <td class="p-3 font-semibold text-zinc-900">${row.item_kegiatan || ''}</td>
+                    <td class="p-3">${row.sub_rincian || ''}</td>
+                    <td class="p-3 text-right font-mono font-bold ${isPemasukan ? 'text-emerald-600' : 'text-red-600'}">Rp ${nominal.toLocaleString('id-ID')}</td>
+                </tr>`;
+            }).join('');
+
+            document.getElementById('card-pemasukan').innerText = "Rp " + pem.toLocaleString('id-ID');
+            document.getElementById('card-pengeluaran').innerText = "Rp " + peng.toLocaleString('id-ID');
+            document.getElementById('card-saldo').innerText = "Rp " + (pem - peng).toLocaleString('id-ID');
+        }
+
+        function renderPeserta(data) {
+            document.getElementById('table-peserta').innerHTML = data.map(row => `
+                <tr class="hover:bg-zinc-50">
+                    <td class="p-3 text-center font-bold font-mono text-zinc-900">${row.nomor || ''}</td>
+                    <td class="p-3 font-semibold text-zinc-900">${row.jenis || ''}</td>
+                    <td class="p-3"><span class="bg-zinc-200 text-zinc-700 text-xs px-2 py-0.5 rounded font-bold">${row.kategori || 'Umum'}</span></td>
+                    <td class="p-3 font-bold">${row.nama || ''}</td>
+                    <td class="p-3">${row.asal || ''}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderGaleri(data) {
+            if(!data.length) {
+                document.getElementById('grid-galeri').innerHTML = `<p class="text-sm text-zinc-400">Belum ada album dokumentasi yang disematkan panitia.</p>`;
+                return;
+            }
+            document.getElementById('grid-galeri').innerHTML = data.map(row => `
+                <div class="border border-zinc-200 rounded-xl p-4 bg-zinc-50 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-bold text-zinc-900 text-sm mb-1">📸 ${row.agenda || row.nama_agenda || 'Dokumentasi'}</h4>
+                        <p class="text-xs text-zinc-500">${row.keterangan || 'Tidak ada keterangan tambahan.'}</p>
+                    </div>
+                    <a href="${row.link || row.tautan_dokumentasi}" target="_blank" class="mt-3 inline-block bg-zinc-900 text-white text-center font-bold text-xs py-1.5 px-3 rounded-lg hover:bg-zinc-800">🔗 Buka Album Dokumentasi</a>
+                </div>
+            `).join('');
+        }
+
+        function setupFilterLomba() {
+            const select = document.getElementById('leaderboard-filter');
+            if(!globalContests.length) {
+                select.innerHTML = `<option value="">Belum ada data kompetisi</option>`;
+                return;
+            }
+            select.innerHTML = globalContests.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            renderLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const currentContest = document.getElementById('leaderboard-filter').value;
+            const tBody = document.getElementById('table-leaderboard');
+            
+            const contest = globalContests.find(c => c.name === currentContest);
+            if(!contest) {
+                tBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-zinc-400">Pilih cabang lomba untuk melihat peringkat</td></tr>`;
+                return;
+            }
+
+            // Agregasi nilai per peserta
+            let rekapNilaiPeserta = contest.participants.map(pName => {
+                let filteredScores = globalScores.filter(s => s.contest_name === currentContest && s.participant_name === pName);
+                
+                // Menghitung jumlah nilai unik dari juri yang masuk
+                let juriSudahMenilai = [...new Set(filteredScores.map(s => s.judge_number))].length;
+                
+                let totalScore = 0;
+                if(filteredScores.length > 0) {
+                    let totalPoin = filteredScores.reduce((acc, curr) => acc + curr.score, 0);
+                    // Rata-rata dari akumulasi nilai kriteria
+                    totalScore = Math.round(totalPoin / juriSudahMenilai || 1);
+                }
+
+                return {
+                    name: pName,
+                    score: totalScore,
+                    statusJuri: juriSudahMenilai
+                };
+            });
+
+            // Urutkan nilai tertinggi ke terendah
+            rekapNilaiPeserta.sort((a, b) => b.score - a.score);
+
+            if(!rekapNilaiPeserta.length) {
+                tBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-zinc-400">Belum ada kontestan terdaftar di grup ini</td></tr>`;
+                return;
+            }
+
+            tBody.innerHTML = rekapNilaiPeserta.map((p, idx) => {
+                let pialas = ['🥇', '🥈', '🥉'];
+                let badgeRank = idx < 3 ? pialas[idx] : `<span class="font-mono text-zinc-400">#${idx+1}</span>`;
+                
+                return `<tr class="hover:bg-zinc-50 border-b border-zinc-100">
+                    <td class="p-3 text-center text-base">${badgeRank}</td>
+                    <td class="p-3 font-bold text-zinc-900">${p.name}</td>
+                    <td class="p-3 text-center text-base font-black text-red-600 font-mono">${p.score > 0 ? p.score + ' pts' : '-'}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-xs ${p.statusJuri >= 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} font-bold">Dinilai ${p.statusJuri}/3 Juri</span></td>
+                </tr>`;
+            }).join('');
+        }
+    </script>
 </body>
 </html>
