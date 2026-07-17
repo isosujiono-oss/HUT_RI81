@@ -13,33 +13,36 @@
             <p class="text-xs opacity-90">Aplikasi Penilaian Lomba - Secure Juri Portal</p>
         </header>
 
-        <div id="loading" class="p-8 text-center text-gray-500 font-medium">
+        <div id="loading" class="p-8 text-center text-gray-500 font-medium hidden">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-2"></div>
             Menghubungkan ke Cloud...
         </div>
 
-        <div id="main-content" class="hidden p-4">
-            <!-- PAGE 1: AUTH & ROLE ACCESS -->
+        <div id="main-content" class="p-4">
+            <!-- HALAMAN 1: LOGIN SECURE TOKEN -->
             <section id="page-roles">
-                <h2 class="text-center font-bold mb-4 text-gray-700">Akses Masuk Juri</h2>
+                <h2 class="text-center font-bold mb-4 text-gray-700">Akses Masuk Lembar Penilaian</h2>
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Masukkan Token Rahasia Juri</label>
-                    <input id="auth-token" type="password" class="w-full border rounded-lg px-3 py-2 text-center font-mono tracking-widest text-lg" placeholder="******">
+                    <input id="auth-token" type="text" class="w-full border rounded-lg px-3 py-2 text-center font-mono tracking-widest text-lg uppercase focus:outline-red-500" placeholder="CONTOH: J1-GER">
+                    <p class="text-[10px] text-gray-400 mt-1 text-center">Token mendikte otomatis cabang lomba dan identitas juri Anda.</p>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="pilihRoleJuri(1)" class="bg-red-600 text-white py-3 rounded-xl font-bold text-xs">Juri 1</button>
-                    <button onclick="pilihRoleJuri(2)" class="bg-red-600 text-white py-3 rounded-xl font-bold text-xs">Juri 2</button>
-                    <button onclick="pilihRoleJuri(3)" class="bg-red-600 text-white py-3 rounded-xl font-bold text-xs">Juri 3</button>
-                </div>
+                <button onclick="validasiDanMasukJuri()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-sm shadow-md transition">
+                    🔑 Validasi Token & Masuk
+                </button>
             </section>
 
-            <!-- PAGE 2: INPUT SCORING AREA -->
+            <!-- HALAMAN 2: LEMBAR INPUT NILAI -->
             <section id="page-scoring" class="hidden">
                 <button onclick="backToRoles()" class="text-sm text-red-600 font-bold mb-4 flex items-center">← Keluar / Kembali</button>
-                <div class="mb-4">
-                    <label class="text-sm font-bold text-gray-700 block mb-1">Pilih Lomba:</label>
-                    <select id="juri-contest-select" onchange="renderFormPenilaian()" class="w-full border rounded-lg px-3 py-2"></select>
+                
+                <!-- Info Terkunci Sesuai Token -->
+                <div class="bg-zinc-900 text-white p-3 rounded-xl mb-4 text-xs">
+                    <p class="opacity-70 uppercase tracking-wider font-bold text-[9px]">Lomba Terkunci:</p>
+                    <p id="info-nama-lomba" class="font-black text-amber-400 text-sm leading-tight">-</p>
+                    <p id="info-identitas-juri" class="mt-1 text-zinc-300 font-semibold border-t border-white/10 pt-1">-</p>
                 </div>
+
                 <div id="scoring-area-wrapper"></div>
             </section>
         </div>
@@ -47,63 +50,77 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYrV6pDt3LO9xyEgZXBTXaBs9uXWYr5dIpH38hl1pShJYK8Gbl_bgnLtIi447Tj4U6/exec";
-        let contests = [];
+        
+        let currentContest = null;
         let currentJuriNum = null;
         let inputedToken = "";
 
-        window.onload = function() {
-            loadContestsData();
-        };
-
-        function loadContestsData() {
-            document.getElementById('loading').classList.remove('hidden');
-            fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`)
-            .then(res => res.json()).then(res => {
-                contests = res.contests;
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-            }).catch(() => {
-                alert("Gagal memuat parameter data dari cloud.");
-            });
-        }
-
-        function pilihRoleJuri(num) {
+        function validasiDanMasukJuri() {
             const token = document.getElementById('auth-token').value.trim();
             if(!token) return alert("Silakan masukkan Token Juri Anda!");
-            currentJuriNum = num;
-            inputedToken = token;
 
+            document.getElementById('loading').classList.remove('hidden');
             document.getElementById('page-roles').classList.add('hidden');
-            document.getElementById('page-scoring').classList.remove('hidden');
 
-            const select = document.getElementById('juri-contest-select');
-            select.innerHTML = contests.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            renderFormPenilaian();
+            fetch(`${SCRIPT_URL}?action=get_lomba_lengkap`)
+            .then(res => res.json())
+            .then(res => {
+                document.getElementById('loading').classList.add('hidden');
+                
+                let foundContest = null;
+                let foundJuriNum = null;
+
+                res.contests.forEach(c => {
+                    if(c.tokens.juri1.trim().toUpperCase() === token.toUpperCase()) { foundContest = c; foundJuriNum = 1; }
+                    if(c.tokens.juri2.trim().toUpperCase() === token.toUpperCase()) { foundContest = c; foundJuriNum = 2; }
+                    if(c.tokens.juri3.trim().toUpperCase() === token.toUpperCase()) { foundContest = c; foundJuriNum = 3; }
+                });
+
+                if(!foundContest) {
+                    alert("Token Tidak Valid atau Belum Didaftarkan Admin!");
+                    document.getElementById('page-roles').classList.remove('hidden');
+                    return;
+                }
+
+                currentContest = foundContest;
+                currentJuriNum = foundJuriNum;
+                inputedToken = token;
+
+                document.getElementById('page-scoring').classList.remove('hidden');
+                document.getElementById('info-nama-lomba').innerText = currentContest.name;
+                document.getElementById('info-identitas-juri').innerText = `Masuk sebagai: JURI ${currentJuriNum}`;
+                
+                renderFormPenilaian();
+            })
+            .catch(() => {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('page-roles').classList.remove('hidden');
+                alert("Gagal terhubung ke cloud. Cek koneksi.");
+            });
         }
 
         function backToRoles() {
             document.getElementById('page-scoring').classList.add('hidden');
             document.getElementById('page-roles').classList.remove('hidden');
-            loadContestsData(); // Refresh data kontestan saat kembali
+            document.getElementById('auth-token').value = "";
+            currentContest = null;
+            currentJuriNum = null;
+            inputedToken = "";
         }
 
         function renderFormPenilaian() {
-            const contestName = document.getElementById('juri-contest-select').value;
-            const contest = contests.find(c => c.name === contestName);
             const wrapper = document.getElementById('scoring-area-wrapper');
-
-            if (!contest || !contest.participants.length) {
-                wrapper.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">Belum ada data peserta terdaftar untuk kelompok lomba ini.</p>`;
+            if (!currentContest || !currentContest.participants.length) {
+                wrapper.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">Belum ada data peserta terdaftar untuk lomba ini.</p>`;
                 return;
             }
 
-            let html = `<h3 class="font-bold text-base mb-4 text-gray-800">Lembar Penilaian Juri ${currentJuriNum}</h3>`;
-            
-            contest.participants.forEach((p, pIdx) => {
+            let html = "";
+            currentContest.participants.forEach((p, pIdx) => {
                 html += `<div class="bg-gray-50 border p-4 rounded-xl mb-4">
                     <p class="font-bold text-gray-800 mb-2"><span class="bg-zinc-800 text-white text-xs px-1.5 py-0.5 rounded mr-2">${pIdx+1}</span>${p}</p>`;
                 
-                contest.criteria.forEach((c, cIdx) => {
+                currentContest.criteria.forEach((c) => {
                     html += `<div class="flex items-center gap-2 mt-2">
                         <label class="text-xs text-gray-600 flex-1">${c}</label>
                         <input type="number" min="0" max="100" class="w-20 border rounded px-2 py-1 text-center font-bold score-input" data-participant="${p}" data-pnum="${pIdx+1}" data-criteria="${c}" placeholder="0-100">
@@ -112,24 +129,21 @@
                 html += `</div>`;
             });
 
-            html += `<button onclick="submitNilaiMassal('${contestName}')" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl mt-2 shadow-md">🚀 Kirim Semua Nilai Ke Cloud</button>`;
+            html += `<button onclick="submitNilaiMassal()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl mt-2 shadow-md hover:bg-red-700 transition">🚀 Kirim Semua Nilai Ke Cloud</button>`;
             wrapper.innerHTML = html;
         }
 
-        function submitNilaiMassal(contestName) {
+        function submitNilaiMassal() {
             const inputs = document.querySelectorAll('.score-input');
             let barisNilai = [];
             let isValid = true;
 
-            if(!inputs.length) return alert("Tidak ada nilai peserta untuk dikirim.");
-
             inputs.forEach(input => {
                 let scoreVal = parseInt(input.value);
-                if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) {
-                    isValid = false;
-                }
+                if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) isValid = false;
+                
                 barisNilai.push({
-                    contest_name: contestName,
+                    contest_name: currentContest.name,
                     participant_name: input.getAttribute('data-participant'),
                     participant_number: parseInt(input.getAttribute('data-pnum')),
                     judge_number: currentJuriNum,
@@ -139,13 +153,14 @@
                 });
             });
 
-            if(!isValid) return alert("Mohon isi semua nilai angka secara valid antara Rentang 0 - 100!");
+            if(!isValid) return alert("Mohon isi semua kolom nilai dengan angka valid (Rentang 0 - 100)!");
 
             document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('page-scoring').classList.add('hidden');
             
             const payload = {
                 action: "input_nilai_juri",
-                contestName: contestName,
+                contestName: currentContest.name,
                 judge_number: currentJuriNum,
                 token: inputedToken,
                 barisNilai: barisNilai
@@ -155,12 +170,10 @@
             .then(res => res.json()).then(res => {
                 document.getElementById('loading').classList.add('hidden');
                 alert(res.message);
-                if(res.status === "success") {
-                    backToRoles();
-                    document.getElementById('auth-token').value = "";
-                }
+                backToRoles();
             }).catch(() => {
                 document.getElementById('loading').classList.add('hidden');
+                document.getElementById('page-scoring').classList.remove('hidden');
                 alert("Gagal mengirim nilai. Cek koneksi.");
             });
         }
