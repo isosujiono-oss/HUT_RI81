@@ -45,21 +45,50 @@
             </form>
         </section>
 
-        <!-- FORM REGISTRASI PESERTA -->
+        <!-- FORM REGISTRASI PESERTA (TERBARU) -->
         <section id="form-Lomba" class="form-section bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs hidden">
             <div class="border-b border-zinc-100 pb-3 mb-5 flex justify-between items-center">
-                <div><h2 class="text-lg font-black text-zinc-900">Form Registrasi Peserta Lomba</h2></div>
+                <div>
+                    <h2 class="text-lg font-black text-zinc-900">Form Registrasi Peserta Lomba</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">Data registrasi otomatis disinkronisasikan ke lembar penilaian Juri.</p>
+                </div>
                 <button onclick="exportExcelData('Lomba')" class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs py-1.5 px-3 rounded-xl">📥 Excel</button>
             </div>
-         <form onsubmit="submitForm(event, 'Lomba')" class="space-y-4">
-            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nomor Urut</label><input type="number" id="l-nomor" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Cabang Lomba</label><input type="text" id="l-jenis" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Peserta / Tim</label><input type="text" id="l-nama" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-            <!-- Kolom Baru Kategori -->
-            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Kategori</label><input type="text" id="l-kategori" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Dewasa / Anak-Anak" required></div>
-            <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Asal Kontingen</label><input type="text" id="l-asal" class="w-full border rounded-lg p-2.5 text-sm" required></div>
-            <button type="submit" id="btn-Lomba" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-xl text-sm">🏆 Daftarkan Peserta</button>
-        </form>
+            <form onsubmit="submitForm(event, 'Lomba')" class="space-y-4">
+                <div class="bg-zinc-50 p-3 rounded-xl border border-zinc-200/60 mb-2">
+                    <span class="text-xs font-bold text-zinc-600 block uppercase tracking-wider">📋 HEADER PENDAFTARAN PESERTA</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nomor Urut</label>
+                        <input type="number" id="l-nomor" class="w-full border rounded-lg p-2.5 text-sm font-semibold" placeholder="01" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Kategori</label>
+                        <select id="l-kategori" class="w-full border rounded-lg p-2.5 text-sm font-semibold">
+                            <option value="Anak-Anak">Anak-Anak</option>
+                            <option value="Remaja">Remaja</option>
+                            <option value="Umum">Umum</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Cabang Lomba</label>
+                    <input type="text" id="l-jenis" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Gerak Jalan Indah" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Peserta / Nama Tim</label>
+                    <input type="text" id="l-nama" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Regu Pramuka Sakti" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Asal Kontingen</label>
+                    <input type="text" id="l-asal" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Desa Bolano RT 04" required>
+                </div>
+
+                <button type="submit" id="btn-Lomba" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-xl text-sm transition hover:bg-red-700">🏆 Daftarkan Peserta & Sinkron Ke Juri</button>
+            </form>
         </section>
 
         <!-- FORM GALERI -->
@@ -76,15 +105,15 @@
             </form>
         </section>
 
-        <!-- FORM TAMBAHAN: SETUP JURI & KRITERIA PENILAIAN -->
+        <!-- FORM TAMBAHAN: SETUP JURI -->
         <section id="form-SetupLomba" class="form-section bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs hidden">
             <div class="border-b border-zinc-100 pb-3 mb-5">
                 <h2 class="text-lg font-black text-zinc-900">Manajemen Setup Lomba & Token Keamanan Juri</h2>
-                <p class="text-xs text-zinc-400 mt-0.5">Konfigurasi Parameter Penilaian Utama & Kode Akses Mandiri Juri</p>
+                <p class="text-xs text-zinc-400 mt-0.5">Konfigurasi Manual Parameter Penilaian Utama & Kode Akses Mandiri Juri</p>
             </div>
             <form onsubmit="submitSetupLomba(event)" class="space-y-4">
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Lomba</label><input id="setup-contest-name" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Gerak Jalan Indah" required></div>
-                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Daftar Nama Peserta (Satu Nama Per Baris)</label><textarea id="setup-participants" rows="3" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Tim Garuda&#10;Dusun II&#10;RT 03" required></textarea></div>
+                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Nama Lomba</label><input id="setup-contest-name" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Contoh: Gerak Jalan Indah (Remaja)" required></div>
+                <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Daftar Nama Peserta (Satu Nama Per Baris)</label><textarea id="setup-participants" rows="3" class="w-full border rounded-lg p-2.5 text-sm" placeholder="No. 01 - Garuda [ RT 02 ]" required></textarea></div>
                 <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Kriteria Penilaian Lomba (Satu Kriteria Per Baris)</label><textarea id="setup-criteria" rows="3" class="w-full border rounded-lg p-2.5 text-sm" placeholder="Kekompakan&#10;Kreativitas&#10;Kedisiplinan" required></textarea></div>
                 <div class="grid grid-cols-3 gap-3">
                     <div><label class="block text-xs font-bold text-zinc-500 uppercase mb-1">Token Juri 1</label><input id="token-juri1" type="text" class="w-full border rounded-lg p-2 text-sm text-center font-mono" placeholder="J1-BOL" required></div>
@@ -113,6 +142,7 @@
         function submitForm(e, targetSheet) {
             e.preventDefault();
             const btn = document.getElementById(`btn-${targetSheet}`);
+            const originalText = btn.innerText;
             btn.innerText = "⏳ Menyimpan..."; btn.disabled = true;
 
             let payload = { action: "insert", target: targetSheet };
@@ -125,6 +155,7 @@
                 payload.nomor = document.getElementById('l-nomor').value;
                 payload.jenis = document.getElementById('l-jenis').value;
                 payload.nama = document.getElementById('l-nama').value;
+                payload.kategori = document.getElementById('l-kategori').value;
                 payload.asal = document.getElementById('l-asal').value;
             } else if (targetSheet === "Galeri") {
                 payload.agenda = document.getElementById('g-agenda').value;
@@ -136,8 +167,8 @@
             .then(res => res.json()).then(res => {
                 alert(`Sukses: ${res.message}`);
                 e.target.reset();
-                btn.innerText = "Simpan Data"; btn.disabled = false;
-            }).catch(() => { alert("Koneksi gagal."); btn.disabled = false; });
+                btn.innerText = originalText; btn.disabled = false;
+            }).catch(() => { alert("Koneksi gagal."); btn.innerText = originalText; btn.disabled = false; });
         }
 
         function submitSetupLomba(e) {
