@@ -24,8 +24,8 @@
                 <p class="text-xs text-red-100 font-medium mt-1 uppercase tracking-wider">Papan Informasi Digital Terpadu • HUT Kemerdekaan RI</p>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="loadAllRealTimeData()" class="bg-white/10 hover:bg-white/20 transition font-bold text-xs py-2 px-4 rounded-xl border border-white/20 text-white shadow-xs">🔄 Segarkan Data</button>
-                <a href="admin.html" class="bg-zinc-900/40 hover:bg-zinc-900/60 transition font-bold text-xs py-2 px-4 rounded-xl border border-white/10 text-red-100">⚙️ Dashboard Admin</a>
+                <!-- Tombol Dashboard Admin Telah Dihapus dari Sini demi Keamanan Akses -->
+                <button onclick="loadAllRealTimeData()" class="bg-white text-red-700 font-black hover:bg-zinc-100 transition font-bold text-xs py-2.5 px-5 rounded-xl shadow-md">🔄 Segarkan Data</button>
             </div>
         </div>
     </header>
@@ -151,7 +151,7 @@
             </section>
         </div>
 
-        <!-- ==================== TAB 4: ALBUM GALERI DOKUMENTASI (MULTI MEDIA) ==================== -->
+        <!-- ==================== TAB 4: ALBUM GALERI DOKUMENTASI ==================== -->
         <section id="page-galeri" class="page-section bg-white border border-zinc-200 p-6 rounded-2xl shadow-xs hidden space-y-4">
             <div class="border-b border-zinc-100 pb-3">
                 <h2 class="text-lg font-black text-zinc-900">🖼️ Galeri Media & Dokumentasi Interaktif (Terbaru Di Atas)</h2>
@@ -172,7 +172,7 @@
 
         window.onload = function() {
             loadAllRealTimeData();
-            setInterval(loadAllRealTimeData, 15000); // Percepat pembaruan real-time otomatis menjadi per 15 detik
+            setInterval(loadAllRealTimeData, 15000); // Sinkronisasi otomatis di background tiap 15 detik
         };
 
         function switchTab(targetId) {
@@ -222,7 +222,6 @@
             }
             let pem = 0, peng = 0;
             
-            // Urutan data dibalik agar transaksi PALING BARU muncul di baris PALING ATAS
             tBody.innerHTML = data.reverse().map(row => {
                 let nominal = Number(row.jumlah || row.nominal || 0);
                 let isPemasukan = row.jenis === "Pemasukan";
@@ -258,7 +257,6 @@
             `).join('');
         }
 
-        // FUNGSI DETEKSI DAN PARSING MEDIA GALERI (MULTIPLE FOTO & VIDEO STREAM YOUTUBE)
         function renderGaleri(data) {
             let grid = document.getElementById('grid-galeri');
             if(!data.length) {
@@ -266,12 +264,10 @@
                 return;
             }
 
-            // Urutan galeri dibalik agar unggahan agenda paling baru muncul paling atas
             grid.innerHTML = data.reverse().map(row => {
                 let mediaUrlRaw = row.link || row.tautan_dokumentasi || "";
                 let mediaHtml = "";
 
-                // Deteksi tautan YouTube untuk membuat frame pemutar video otomatis
                 if (mediaUrlRaw.includes("youtube.com/watch?v=") || mediaUrlRaw.includes("youtu.be/")) {
                     let videoId = "";
                     if(mediaUrlRaw.includes("v=")) {
@@ -283,7 +279,6 @@
                         <iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>`;
                 } 
-                // Jika input berisi beberapa link foto sekaligus (dipisahkan tanda koma)
                 else if (mediaUrlRaw.includes(",") || mediaUrlRaw.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
                     let linksArray = mediaUrlRaw.split(",").map(url => url.trim());
                     mediaHtml = `<div class="grid ${linksArray.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-1.5 mb-3">`;
@@ -294,7 +289,6 @@
                     });
                     mediaHtml += `</div>`;
                 } 
-                // Tautan luar standar (Google Drive / Cloud Folder Link)
                 else {
                     mediaHtml = `<div class="bg-zinc-100 rounded-xl p-6 text-center border border-dashed border-zinc-300 mb-3">
                         <span class="text-2xl">📂</span>
