@@ -161,6 +161,7 @@
                     <table class="w-full text-left text-sm border-collapse">
                         <thead>
                             <tr class="bg-zinc-50 text-zinc-700 text-[11px] font-bold uppercase border-b border-zinc-200">
+                                <th class="p-2.5 w-28">Tanggal</th>
                                 <th class="p-2.5 w-24">Jenis</th>
                                 <th class="p-2.5 w-44">Item Rincian</th>
                                 <th class="p-2.5">Sub Rincian Keterangan</th>
@@ -242,7 +243,8 @@
         function renderKeuangan(data) {
             let tBody = document.querySelector('#page-keuangan #table-keuangan');
             if(!data.length) {
-                tBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-zinc-400">Belum ada mutasi kas.</td></tr>`;
+                // Sesuaikan colspan menjadi 5
+                tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-zinc-400">Belum ada mutasi kas.</td></tr>`;
                 return;
             }
             let pem = 0, peng = 0;
@@ -251,22 +253,37 @@
                 let nominal = Number(row.jumlah || row.nominal || 0);
                 let isPemasukan = row.jenis === "Pemasukan";
                 if(isPemasukan) pem += nominal; else peng += nominal;
-
+        
                 let subRincianText = row.sub_rincian || row.subrincian || row.sub || "-";
-
+        
+                // TANGGAL: Mengambil dari properti timestamp/tanggal bawaan Google Sheets
+                let rawTanggal = row.timestamp || row.tanggal || row.date || "";
+                let tglFormatted = "-";
+                if (rawTanggal) {
+                    let d = new Date(rawTanggal);
+                    if (!isNaN(d.getTime())) {
+                        // Format tampilan tanggal Indonesia (misal: 21 Jul 2026)
+                        tglFormatted = d.toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+                }
+        
                 return `<tr class="hover:bg-zinc-50 transition text-xs">
+                    <td class="p-2.5 font-mono text-[11px] text-zinc-500 whitespace-nowrap">${tglFormatted}</td>
                     <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-black ${isPemasukan ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${row.jenis}</span></td>
                     <td class="p-2.5 font-bold text-zinc-900 leading-tight">${row.item_kegiatan || row.item || ''}</td>
                     <td class="p-2.5 text-zinc-600 whitespace-pre-line">${subRincianText}</td>
                     <td class="p-2.5 text-right font-mono font-black ${isPemasukan ? 'text-emerald-600' : 'text-red-600'}">Rp ${nominal.toLocaleString('id-ID')}</td>
                 </tr>`;
             }).join('');
-
+        
             document.getElementById('card-pemasukan').innerText = "Rp " + pem.toLocaleString('id-ID');
             document.getElementById('card-pengeluaran').innerText = "Rp " + peng.toLocaleString('id-ID');
             document.getElementById('card-saldo').innerText = "Rp " + (pem - peng).toLocaleString('id-ID');
         }
-
         function renderPeserta(data) {
             let tBody = document.querySelector('#page-peserta #table-peserta');
             if(!data.length) {
