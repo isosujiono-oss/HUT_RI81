@@ -293,7 +293,7 @@ function renderKeuangan(data) {
     document.getElementById('card-saldo').innerText = "Rp " + (pem - peng).toLocaleString('id-ID');
 }
 
-// FUNGSI BARU: MENANGANI PRINT/CETAK LAPORAN KEUANGAN
+// FUNGSI CETAK LAPORAN KEUANGAN DENGAN FORMAT URAIAN PER SEKTOR
 function cetakLaporanKeuangan() {
     if (!globalDataKeuangan || globalDataKeuangan.length === 0) {
         alert("Belum ada data keuangan untuk dicetak!");
@@ -304,7 +304,7 @@ function cetakLaporanKeuangan() {
     let totalPendapatan = 0;
     let totalPengeluaran = 0;
 
-    // Urutkan data secara kronologis (dari awal ke terbaru)
+    // Urutkan data secara kronologis (dari transaksi terawal ke terbaru)
     let sortedData = globalDataKeuangan.slice().sort((a, b) => {
         let tA = new Date(a.timestamp || a.tanggal || a.date || 0);
         let tB = new Date(b.timestamp || b.tanggal || b.date || 0);
@@ -314,14 +314,24 @@ function cetakLaporanKeuangan() {
     let rowTabelHtml = sortedData.map((row, index) => {
         let nominal = Number(row.jumlah || row.nominal || 0);
         let isPemasukan = (row.jenis || "").toLowerCase() === "pemasukan";
-        
-        let pendapatan = isPemasukan ? nominal : 0;
-        let pengeluaran = !isPemasukan ? nominal : 0;
 
-        totalPendapatan += pendapatan;
-        totalPengeluaran += pengeluaran;
-        saldoRunning += (pendapatan - pengeluaran);
+        // Uraian Teks
+        let itemKet = (row.item_kegiatan || row.item || '') + 
+                      (row.sub_rincian ? ` (${row.sub_rincian})` : '');
 
+        let uraianPendapatan = isPemasukan ? itemKet : "-";
+        let uraianPengeluaran = !isPemasukan ? itemKet : "-";
+
+        // Perhitungan Akumulasi
+        if (isPemasukan) {
+            totalPendapatan += nominal;
+            saldoRunning += nominal;
+        } else {
+            totalPengeluaran += nominal;
+            saldoRunning -= nominal;
+        }
+
+        // Format Tanggal
         let rawTanggal = row.timestamp || row.tanggal || row.date || "";
         let tglFormatted = "-";
         if (rawTanggal) {
@@ -335,15 +345,12 @@ function cetakLaporanKeuangan() {
             }
         }
 
-        let itemKet = (row.item_kegiatan || row.item || '') + 
-                      (row.sub_rincian ? ` (${row.sub_rincian})` : '');
-
         return `
             <tr>
                 <td style="text-align: center;">${index + 1}</td>
                 <td style="text-align: center;">${tglFormatted}</td>
-                <td style="text-align: right;">${pendapatan > 0 ? 'Rp ' + pendapatan.toLocaleString('id-ID') : '-'}</td>
-                <td style="text-align: right;">${pengeluaran > 0 ? 'Rp ' + pengeluaran.toLocaleString('id-ID') : '-'}</td>
+                <td>${uraianPendapatan}</td>
+                <td>${uraianPengeluaran}</td>
                 <td style="text-align: right; font-weight: bold;">Rp ${nominal.toLocaleString('id-ID')}</td>
                 <td style="text-align: right; font-weight: bold;">Rp ${saldoRunning.toLocaleString('id-ID')}</td>
             </tr>
@@ -362,7 +369,7 @@ function cetakLaporanKeuangan() {
             .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 15px; }
             .header h1 { font-size: 14pt; margin: 0; text-transform: uppercase; font-weight: bold; }
             .header h2 { font-size: 12pt; margin: 2px 0; text-transform: uppercase; }
-            .header p { font-size: 8pt; margin: 0; italic; color: #444; }
+            .header p { font-size: 8pt; margin: 0; font-style: italic; color: #444; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
             th, td { border: 1px solid #000; padding: 6px 8px; font-size: 9pt; }
             th { background-color: #f2f2f2; text-transform: uppercase; font-weight: bold; text-align: center; }
@@ -383,10 +390,10 @@ function cetakLaporanKeuangan() {
                 <tr>
                     <th style="width: 5%;">No</th>
                     <th style="width: 12%;">Tanggal</th>
-                    <th style="width: 18%;">Pendapatan</th>
-                    <th style="width: 18%;">Pengeluaran</th>
-                    <th style="width: 20%;">Nominal / Jumlah</th>
-                    <th style="width: 27%;">Saldo</th>
+                    <th style="width: 25%;">Pendapatan (Uraian)</th>
+                    <th style="width: 25%;">Pengeluaran (Uraian)</th>
+                    <th style="width: 16%;">Nominal / Jumlah</th>
+                    <th style="width: 17%;">Saldo</th>
                 </tr>
             </thead>
             <tbody>
@@ -395,9 +402,9 @@ function cetakLaporanKeuangan() {
             <tfoot>
                 <tr class="tfoot-summary">
                     <td colspan="2" style="text-align: right; text-transform: uppercase;">Total Akumulasi:</td>
-                    <td style="text-align: right; color: green;">Rp ${totalPendapatan.toLocaleString('id-ID')}</td>
-                    <td style="text-align: right; color: red;">Rp ${totalPengeluaran.toLocaleString('id-ID')}</td>
-                    <td colspan="2" style="text-align: right; font-size: 10pt;">Sisa Kas Bersih: <strong>Rp ${saldoRunning.toLocaleString('id-ID')}</strong></td>
+                    <td style="color: green;">Total Masuk: Rp ${totalPendapatan.toLocaleString('id-ID')}</td>
+                    <td style="color: red;">Total Keluar: Rp ${totalPengeluaran.toLocaleString('id-ID')}</td>
+                    <td colspan="2" style="text-align: right; font-size: 10pt;">Sisa Saldo Kas: <strong>Rp ${saldoRunning.toLocaleString('id-ID')}</strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -419,8 +426,7 @@ function cetakLaporanKeuangan() {
 
     printWindow.document.write(htmlContent);
     printWindow.document.close();
-}
-        function renderPeserta(data) {
+}        function renderPeserta(data) {
             let tBody = document.querySelector('#page-peserta #table-peserta');
             if(!data.length) {
                 tBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-zinc-400">Belum ada pendaftar resmi.</td></tr>`;
