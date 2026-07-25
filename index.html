@@ -154,8 +154,12 @@
             </section>
 
             <section class="bg-white border border-zinc-200 p-5 rounded-xl shadow-xs space-y-3">
-                <div class="border-b border-zinc-100 pb-2">
+                <div class="border-b border-zinc-100 pb-2 flex justify-between items-center">
                     <h2 class="text-base font-black text-zinc-900">💰 Buku Kas Panitia PHBN (Terbaru Di Atas)</h2>
+                    <!-- Tombol Cetak Baru -->
+                    <button onclick="cetakLaporanKeuangan()" class="bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 shadow-xs transition cursor-pointer">
+                        🖨️ Cetak Laporan
+                    </button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
@@ -240,50 +244,182 @@
             });
         }
 
-        function renderKeuangan(data) {
-            let tBody = document.querySelector('#page-keuangan #table-keuangan');
-            if(!data.length) {
-                // Sesuaikan colspan menjadi 5
-                tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-zinc-400">Belum ada mutasi kas.</td></tr>`;
-                return;
+        // Variable global untuk menyimpan data mutasi keuangan
+let globalDataKeuangan = [];
+
+function renderKeuangan(data) {
+    let tBody = document.querySelector('#page-keuangan #table-keuangan');
+    if(!data.length) {
+        tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-zinc-400">Belum ada mutasi kas.</td></tr>`;
+        return;
+    }
+    
+    // Simpan data asli ke variable global untuk keperluan cetak
+    globalDataKeuangan = JSON.parse(JSON.stringify(data));
+
+    let pem = 0, peng = 0;
+    
+    tBody.innerHTML = data.slice().reverse().map(row => {
+        let nominal = Number(row.jumlah || row.nominal || 0);
+        let isPemasukan = row.jenis === "Pemasukan";
+        if(isPemasukan) pem += nominal; else peng += nominal;
+
+        let subRincianText = row.sub_rincian || row.subrincian || row.sub || "-";
+
+        let rawTanggal = row.timestamp || row.tanggal || row.date || "";
+        let tglFormatted = "-";
+        if (rawTanggal) {
+            let d = new Date(rawTanggal);
+            if (!isNaN(d.getTime())) {
+                tglFormatted = d.toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
             }
-            let pem = 0, peng = 0;
-            
-            tBody.innerHTML = data.reverse().map(row => {
-                let nominal = Number(row.jumlah || row.nominal || 0);
-                let isPemasukan = row.jenis === "Pemasukan";
-                if(isPemasukan) pem += nominal; else peng += nominal;
-        
-                let subRincianText = row.sub_rincian || row.subrincian || row.sub || "-";
-        
-                // TANGGAL: Mengambil dari properti timestamp/tanggal bawaan Google Sheets
-                let rawTanggal = row.timestamp || row.tanggal || row.date || "";
-                let tglFormatted = "-";
-                if (rawTanggal) {
-                    let d = new Date(rawTanggal);
-                    if (!isNaN(d.getTime())) {
-                        // Format tampilan tanggal Indonesia (misal: 21 Jul 2026)
-                        tglFormatted = d.toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                    }
-                }
-        
-                return `<tr class="hover:bg-zinc-50 transition text-xs">
-                    <td class="p-2.5 font-mono text-[11px] text-zinc-500 whitespace-nowrap">${tglFormatted}</td>
-                    <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-black ${isPemasukan ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${row.jenis}</span></td>
-                    <td class="p-2.5 font-bold text-zinc-900 leading-tight">${row.item_kegiatan || row.item || ''}</td>
-                    <td class="p-2.5 text-zinc-600 whitespace-pre-line">${subRincianText}</td>
-                    <td class="p-2.5 text-right font-mono font-black ${isPemasukan ? 'text-emerald-600' : 'text-red-600'}">Rp ${nominal.toLocaleString('id-ID')}</td>
-                </tr>`;
-            }).join('');
-        
-            document.getElementById('card-pemasukan').innerText = "Rp " + pem.toLocaleString('id-ID');
-            document.getElementById('card-pengeluaran').innerText = "Rp " + peng.toLocaleString('id-ID');
-            document.getElementById('card-saldo').innerText = "Rp " + (pem - peng).toLocaleString('id-ID');
         }
+
+        return `<tr class="hover:bg-zinc-50 transition text-xs">
+            <td class="p-2.5 font-mono text-[11px] text-zinc-500 whitespace-nowrap">${tglFormatted}</td>
+            <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-black ${isPemasukan ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${row.jenis}</span></td>
+            <td class="p-2.5 font-bold text-zinc-900 leading-tight">${row.item_kegiatan || row.item || ''}</td>
+            <td class="p-2.5 text-zinc-600 whitespace-pre-line">${subRincianText}</td>
+            <td class="p-2.5 text-right font-mono font-black ${isPemasukan ? 'text-emerald-600' : 'text-red-600'}">Rp ${nominal.toLocaleString('id-ID')}</td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('card-pemasukan').innerText = "Rp " + pem.toLocaleString('id-ID');
+    document.getElementById('card-pengeluaran').innerText = "Rp " + peng.toLocaleString('id-ID');
+    document.getElementById('card-saldo').innerText = "Rp " + (pem - peng).toLocaleString('id-ID');
+}
+
+// FUNGSI BARU: MENANGANI PRINT/CETAK LAPORAN KEUANGAN
+function cetakLaporanKeuangan() {
+    if (!globalDataKeuangan || globalDataKeuangan.length === 0) {
+        alert("Belum ada data keuangan untuk dicetak!");
+        return;
+    }
+
+    let saldoRunning = 0;
+    let totalPendapatan = 0;
+    let totalPengeluaran = 0;
+
+    // Urutkan data secara kronologis (dari awal ke terbaru)
+    let sortedData = globalDataKeuangan.slice().sort((a, b) => {
+        let tA = new Date(a.timestamp || a.tanggal || a.date || 0);
+        let tB = new Date(b.timestamp || b.tanggal || b.date || 0);
+        return tA - tB;
+    });
+
+    let rowTabelHtml = sortedData.map((row, index) => {
+        let nominal = Number(row.jumlah || row.nominal || 0);
+        let isPemasukan = (row.jenis || "").toLowerCase() === "pemasukan";
+        
+        let pendapatan = isPemasukan ? nominal : 0;
+        let pengeluaran = !isPemasukan ? nominal : 0;
+
+        totalPendapatan += pendapatan;
+        totalPengeluaran += pengeluaran;
+        saldoRunning += (pendapatan - pengeluaran);
+
+        let rawTanggal = row.timestamp || row.tanggal || row.date || "";
+        let tglFormatted = "-";
+        if (rawTanggal) {
+            let d = new Date(rawTanggal);
+            if (!isNaN(d.getTime())) {
+                tglFormatted = d.toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }
+        }
+
+        let itemKet = (row.item_kegiatan || row.item || '') + 
+                      (row.sub_rincian ? ` (${row.sub_rincian})` : '');
+
+        return `
+            <tr>
+                <td style="text-align: center;">${index + 1}</td>
+                <td style="text-align: center;">${tglFormatted}</td>
+                <td style="text-align: right;">${pendapatan > 0 ? 'Rp ' + pendapatan.toLocaleString('id-ID') : '-'}</td>
+                <td style="text-align: right;">${pengeluaran > 0 ? 'Rp ' + pengeluaran.toLocaleString('id-ID') : '-'}</td>
+                <td style="text-align: right; font-weight: bold;">Rp ${nominal.toLocaleString('id-ID')}</td>
+                <td style="text-align: right; font-weight: bold;">Rp ${saldoRunning.toLocaleString('id-ID')}</td>
+            </tr>
+        `;
+    }).join('');
+
+    const printWindow = window.open('', '_blank', 'width=1000,height=700');
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Laporan Kas Keuangan PHBN Kecamatan Bolano</title>
+        <style>
+            @page { size: A4 portrait; margin: 15mm; }
+            body { font-family: Arial, sans-serif; font-size: 11px; color: #000; margin: 0; padding: 0; }
+            .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 15px; }
+            .header h1 { font-size: 14pt; margin: 0; text-transform: uppercase; font-weight: bold; }
+            .header h2 { font-size: 12pt; margin: 2px 0; text-transform: uppercase; }
+            .header p { font-size: 8pt; margin: 0; italic; color: #444; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #000; padding: 6px 8px; font-size: 9pt; }
+            th { background-color: #f2f2f2; text-transform: uppercase; font-weight: bold; text-align: center; }
+            .tfoot-summary td { font-weight: bold; background-color: #fafafa; }
+            .signature { margin-top: 30px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+            .sig-box { text-align: center; width: 200px; }
+        </style>
+    </head>
+    <body onload="window.print(); window.close();">
+        <div class="header">
+            <h1>PANITIA HARI BESAR NASIONAL (PHBN)</h1>
+            <h2>KECAMATAN BOLANO</h2>
+            <p>LAPORAN PERTANGGUNGJAWABAN KAS KEUANGAN TRANSPARAN</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;">No</th>
+                    <th style="width: 12%;">Tanggal</th>
+                    <th style="width: 18%;">Pendapatan</th>
+                    <th style="width: 18%;">Pengeluaran</th>
+                    <th style="width: 20%;">Nominal / Jumlah</th>
+                    <th style="width: 27%;">Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rowTabelHtml}
+            </tbody>
+            <tfoot>
+                <tr class="tfoot-summary">
+                    <td colspan="2" style="text-align: right; text-transform: uppercase;">Total Akumulasi:</td>
+                    <td style="text-align: right; color: green;">Rp ${totalPendapatan.toLocaleString('id-ID')}</td>
+                    <td style="text-align: right; color: red;">Rp ${totalPengeluaran.toLocaleString('id-ID')}</td>
+                    <td colspan="2" style="text-align: right; font-size: 10pt;">Sisa Kas Bersih: <strong>Rp ${saldoRunning.toLocaleString('id-ID')}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="signature">
+            <div class="sig-box">
+                <p>Mengetahui,<br><strong>Ketua Panitia PHBN</strong></p>
+                <br><br><br>
+                <p>( .................................... )</p>
+            </div>
+            <div class="sig-box">
+                <p>Bolano, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br><strong>Bendahara PHBN</strong></p>
+                <br><br><br>
+                <p>( .................................... )</p>
+            </div>
+        </div>
+    </body>
+    </html>`;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+}
         function renderPeserta(data) {
             let tBody = document.querySelector('#page-peserta #table-peserta');
             if(!data.length) {
