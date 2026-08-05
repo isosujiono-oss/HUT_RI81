@@ -212,7 +212,7 @@
         window.onload = function() {
             loadAllRealTimeData();
             setInterval(function() {
-                window.location.reload();
+                loadAllRealTimeData();
             }, 60000);
         };
 
