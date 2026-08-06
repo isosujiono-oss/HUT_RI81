@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Papan Informasi PHBN - Kecamatan Bolano</title>
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <style>
         /* Menghilangkan scrollbar default pada navigasi menu */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -208,7 +209,16 @@
         let globalContests = [];
         let globalScores = [];
         let globalDataKeuangan = [];
-
+        // KODE BARU DITAMBAHKAN: Inisialisasi Listener WebSocket Pusher
+        const pusher = new Pusher('YOUR_PUSHER_APP_KEY', { cluster: 'ap1' });
+        const channel = pusher.subscribe('phbn-channel');
+        
+        // Begitu ada sinyal 'nilai-updated' dari backend, langsung update data saat itu juga!
+        channel.bind('nilai-updated', function(data) {
+            console.log("⚡ Sinyal nilai baru diterima dari Juri! Memperbarui Papan Informasi...");
+            loadAllRealTimeData();
+        });
+        
         window.onload = function() {
             loadAllRealTimeData();
             setInterval(function() {
