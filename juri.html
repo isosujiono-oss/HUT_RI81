@@ -134,49 +134,57 @@
         }
 
         function submitNilaiMassal() {
-            const inputs = document.querySelectorAll('.score-input');
-            let barisNilai = [];
-            let isValid = true;
+    const inputs = document.querySelectorAll('.score-input');
+    let barisNilai = [];
+    let isValid = true;
 
-            inputs.forEach(input => {
-                let scoreVal = parseInt(input.value);
-                if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) isValid = false;
-                
-                barisNilai.push({
-                    contest_name: currentContest.name,
-                    participant_name: input.getAttribute('data-participant'),
-                    participant_number: parseInt(input.getAttribute('data-pnum')),
-                    judge_number: currentJuriNum,
-                    criteria_name: input.getAttribute('data-criteria'),
-                    score: scoreVal,
-                    submitted_at: new Date().toISOString()
-                });
-            });
+    inputs.forEach(input => {
+        let scoreVal = parseInt(input.value);
+        if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) isValid = false;
+        
+        barisNilai.push({
+            contest_name: currentContest.name,
+            participant_name: input.getAttribute('data-participant'),
+            participant_number: parseInt(input.getAttribute('data-pnum')),
+            judge_number: currentJuriNum,
+            criteria_name: input.getAttribute('data-criteria'),
+            score: scoreVal,
+            submitted_at: new Date().toISOString()
+        });
+    });
 
-            if(!isValid) return alert("Mohon isi semua kolom nilai dengan angka valid (Rentang 0 - 100)!");
+    if(!isValid) return alert("Mohon isi semua kolom nilai dengan angka valid (Rentang 0 - 100)!");
 
-            document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('page-scoring').classList.add('hidden');
-            
-            const payload = {
-                action: "input_nilai_juri",
-                contestName: currentContest.name,
-                judge_number: currentJuriNum,
-                token: inputedToken,
-                barisNilai: barisNilai
-            };
+    const payload = {
+        action: "input_nilai_juri",
+        contestName: currentContest.name,
+        judge_number: currentJuriNum,
+        token: inputedToken,
+        barisNilai: barisNilai
+    };
 
-            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
-            .then(res => res.json()).then(res => {
-                document.getElementById('loading').classList.add('hidden');
-                alert(res.message);
-                backToRoles();
-            }).catch(() => {
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('page-scoring').classList.remove('hidden');
-                alert("Gagal mengirim nilai. Cek koneksi.");
-            });
+    // 1. Simpan backup lokal terlebih dahulu di penyimpanan HP Juri
+    const storageKey = `offline_scores_${currentContest.name}_J${currentJuriNum}`;
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+
+    // 2. LANGSUNG beri umpan balik sukses ke Juri (tanpa menunggu loading server)
+    alert("✅ Nilai berhasil tersimpan di HP Anda & sedang disinkronkan ke server!");
+    backToRoles();
+
+    // 3. Kirim data ke Cloud Google Apps Script di latar belakang (Background Process)
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(res => {
+        if(res.status === "success") {
+            // Hapus cadangan lokal jika kirim cloud sukses
+            localStorage.removeItem(storageKey);
+            console.log("Sinkronisasi cloud sukses:", res.message);
         }
+    })
+    .catch(err => {
+        console.warn("Sinyal terputus. Data tersimpan aman di penyimpanan lokal HP.");
+    });
+}
     </script>
 </body>
 </html>
