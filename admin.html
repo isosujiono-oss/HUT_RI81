@@ -208,7 +208,7 @@
                 payload.nama = document.getElementById('l-nama').value;
                 payload.kategori = document.getElementById('l-kategori').value;
                 payload.asal = document.getElementById('l-asal').value;
-            else if (targetSheet === "Galeri") {
+            } else if (targetSheet === "Galeri") {
                 payload.nama_agenda = document.getElementById('g-agenda').value;
                 payload.tautan_dokumentasi = document.getElementById('g-link').value;
                 payload.keterangan = document.getElementById('g-keterangan').value;
@@ -222,7 +222,6 @@
                 ambilDataDropdownLomba();
             }).catch(() => { alert("Koneksi gagal."); btn.innerText = originalText; btn.disabled = false; });
         }
-
         // INTEGRASI FIX: Mengambil data string peserta riil dari elemen input hidden agar tidak terkirim kosong []
         function submitSetupLomba(e) {
     e.preventDefault();
